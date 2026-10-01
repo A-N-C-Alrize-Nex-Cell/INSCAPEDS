@@ -255,80 +255,72 @@ export default function Home() {
       </section>
 
       {/* CLIENTS SECTION */}
-      <section className="bg-sand-50 overflow-hidden flex flex-col items-center justify-center py-16 md:py-24">
+      <section className="bg-sand-50 overflow-hidden flex flex-col items-center justify-center py-12 md:py-24">
         <div className="container-wide mb-4 md:mb-6 w-full">
           <div className="flex flex-col items-start">
             <h2 className="font-serif text-3xl md:text-5xl text-ink-800 mb-3">
               Our Clients
             </h2>
-            <p className="font-sans text-base md:text-lg text-ink-600 max-w-full text-left mb-6">
+            <p className="font-sans text-base md:text-lg text-ink-600 max-w-full text-left mb-4 md:mb-6">
               Trusted by leading organizations across diverse sectors.
             </p>
           </div>
         </div>
-        
+
         <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
-          className="relative w-full max-w-[1400px]"
+          className="relative w-full max-w-[1400px] overflow-hidden"
           style={{
-            WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-            maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
+            maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
             backgroundColor: 'transparent'
           }}
         >
           {clientImages.length > 0 ? (
-            // Drive-based client logos - render directly without wrapper
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-70 transition-all duration-500" style={{ backgroundColor: 'transparent' }}>
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex items-center gap-12 md:gap-16 pr-12 md:pr-16" style={{ backgroundColor: 'transparent' }}>
+            // Drive-based client logos - 4x loop repeat for continuous seamless scroll on mobile
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-80 hover:opacity-100 transition-all duration-500">
+              {[...Array(4)].map((_, loopIdx) => (
+                <div key={loopIdx} className="flex items-center gap-8 sm:gap-12 md:gap-16 pr-8 sm:pr-12 md:pr-16">
                   {clientImages.map((logo, idx) => (
-                    <img
-                      key={idx}
-                      src={logo.src}
-                      alt="Client logo"
-                      className="max-h-16 md:max-h-20 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      style={{ backgroundColor: 'transparent' }}
-                    />
+                    <div key={idx} className="h-12 sm:h-16 md:h-20 w-28 sm:w-36 md:w-44 flex items-center justify-center p-1">
+                      <ResilientImage
+                        src={logo.src}
+                        candidates={logo.srcCandidates}
+                        alt={logo.name || "Client logo"}
+                        className="max-h-full max-w-full w-auto h-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                      />
+                    </div>
                   ))}
                 </div>
               ))}
             </div>
           ) : (
             // Fallback to hardcoded logos
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-70 transition-all duration-500">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex items-center gap-24 md:gap-32 pr-24 md:pr-32">
-
-                  <div className="font-sans font-black text-2xl md:text-3xl tracking-tighter uppercase cursor-default hover:text-ink-900 transition-colors duration-300">
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-80 transition-all duration-500">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-12 sm:gap-20 md:gap-32 pr-12 sm:pr-20 md:pr-32">
+                  <div className="font-sans font-black text-xl sm:text-2xl md:text-3xl tracking-tighter uppercase cursor-default hover:text-ink-900 transition-colors duration-300">
                     MÜDON
                   </div>
-
-                  <div className="font-sans font-light text-3xl md:text-4xl tracking-[0.2em] lowercase cursor-default hover:text-ink-900 transition-colors duration-300">
+                  <div className="font-sans font-light text-2xl sm:text-3xl md:text-4xl tracking-[0.2em] lowercase cursor-default hover:text-ink-900 transition-colors duration-300">
                     senda
                   </div>
-
                   <div className="text-ink-800 cursor-default hover:text-black transition-colors duration-300 flex items-center justify-center opacity-80">
-                    <Infinity size={56} strokeWidth={1.5} />
+                    <Infinity size={40} strokeWidth={1.5} />
                   </div>
-
-                  <div className="flex items-center justify-center w-16 h-16 bg-black rounded-full text-white font-sans font-bold text-xl cursor-default hover:bg-ink-800 transition-colors duration-300">
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-black rounded-full text-white font-sans font-bold text-lg sm:text-xl cursor-default hover:bg-ink-800 transition-colors duration-300">
                     RO
                   </div>
-
-                  <div className="font-sans font-medium text-4xl tracking-widest lowercase cursor-default hover:text-ink-900 transition-colors duration-300" style={{ fontFamily: 'system-ui, sans-serif' }}>
+                  <div className="font-sans font-medium text-2xl sm:text-3xl md:text-4xl tracking-widest lowercase cursor-default hover:text-ink-900 transition-colors duration-300" style={{ fontFamily: 'system-ui, sans-serif' }}>
                     nua
                   </div>
-
                   <div className="flex flex-col items-center justify-center cursor-default hover:text-ink-900 transition-colors duration-300">
-                    <div className="text-3xl text-ink-300 mb-1">🌳</div>
-                    <span className="text-[11px] font-sans tracking-[0.3em] uppercase text-ink-400">ZAGALE</span>
+                    <div className="text-2xl text-ink-300 mb-1">🌳</div>
+                    <span className="text-[10px] font-sans tracking-[0.3em] uppercase text-ink-400">ZAGALE</span>
                   </div>
-
                 </div>
               ))}
             </div>
