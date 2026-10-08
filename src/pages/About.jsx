@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Sprout, MessageCircle } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import {
   fadeUp,
   staggerContainer,
@@ -28,12 +28,23 @@ export default function About() {
   const { data: introImages } = useSectionImages("about", "Hero Section");
   const { data: founderImages } = useSectionImages("about", "Second Section");
   const { data: howWeWorkImages } = useSectionImages("about", "How We Work_Section");
+  const { data: bentoImages } = useSectionImages("about", "Bento Grid_Section");
   const { data: driveTeamMembers } = useTeamMembers();
 
   const introSrc = (driveReady && introImages?.[0]?.src) || studioImage;
   const introCandidates = driveReady && introImages?.[0]?.srcCandidates;
   const founderSrc = (driveReady && founderImages?.[0]?.src) || founderImage;
   const founderCandidates = driveReady && founderImages?.[0]?.srcCandidates;
+
+  // 5 slots: first 4 fill the small 2x2 photos, the 5th is the large tall
+  // photo — numbered 1_.. through 5_.. in the Drive folder to control order.
+  const bentoSlots = [0, 1, 2, 3, 4].map((i) => {
+    const img = driveReady && bentoImages?.[i];
+    return {
+      src: img?.src || studioImage,
+      candidates: img?.srcCandidates,
+    };
+  });
 
   // Use Drive team members if available, otherwise fallback to static data
   const displayTeam = (driveReady && driveTeamMembers && driveTeamMembers.length > 0)
@@ -376,116 +387,93 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* BENTO GRID */}
+      {/* BENTO GRID — 2x2 small photos on the left, one large tall photo
+          on the right. Sourced from the About/Bento Grid_Section Drive
+          folder, numbered 1_.. through 5_.. to control which photo lands
+          in which slot (5th = the large one). */}
       <section className="container-wide pt-0 pb-24 md:pb-36">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
-          className="bento-grid grid grid-cols-1 gap-4 md:gap-5"
+          className="photo-bento grid grid-cols-2 gap-3 md:gap-4"
         >
           <motion.div
             variants={staggerItem}
-            className="bento-a rounded-2xl bg-sand-100 border border-ink-200/40 p-8 flex items-center"
+            className="photo-bento-a aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
-            <h3 className="font-serif text-2xl md:text-3xl text-ink-800 leading-snug">
-              Design now,
-              <br />
-              grow closer.
-            </h3>
+            <ResilientImage
+              src={bentoSlots[0].src}
+              candidates={bentoSlots[0].candidates}
+              alt="Inscape studio"
+              className="w-full h-full object-cover"
+            />
           </motion.div>
 
           <motion.div
             variants={staggerItem}
-            className="bento-b rounded-2xl bg-[#2a4f26] p-8 flex flex-col justify-between"
+            className="photo-bento-b aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
-            <Sprout size={28} className="text-sand-100" />
-            <p className="font-serif text-xl md:text-2xl text-sand-100 mt-6">
-              Built on collaboration, from first sketch to final planting.
-            </p>
+            <ResilientImage
+              src={bentoSlots[1].src}
+              candidates={bentoSlots[1].candidates}
+              alt="Inscape studio"
+              className="w-full h-full object-cover"
+            />
           </motion.div>
 
           <motion.div
             variants={staggerItem}
-            className="bento-c rounded-2xl bg-ink-800 text-white p-6 flex flex-col justify-between"
+            className="photo-bento-c aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
-            <div className="flex items-center justify-between text-xs uppercase tracking-ultra-wide font-semibold">
-              <span>24 Mar</span>
-              <span>09:00–11:00</span>
-            </div>
-            <div>
-              <p className="font-serif text-xl md:text-2xl mb-3">Site Walkthrough</p>
-              <span className="inline-block text-[11px] uppercase tracking-ultra-wide font-semibold bg-white/20 rounded-full px-3 py-1">
-                Client Consultation
-              </span>
-            </div>
+            <ResilientImage
+              src={bentoSlots[2].src}
+              candidates={bentoSlots[2].candidates}
+              alt="Inscape studio"
+              className="w-full h-full object-cover"
+            />
           </motion.div>
 
           <motion.div
             variants={staggerItem}
-            className="bento-d rounded-2xl bg-sand-100 border border-ink-200/40 p-6 flex items-center justify-center"
+            className="photo-bento-d aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
-            <p className="font-serif text-2xl tracking-wide text-ink-800">INSCAPE</p>
+            <ResilientImage
+              src={bentoSlots[3].src}
+              candidates={bentoSlots[3].candidates}
+              alt="Inscape studio"
+              className="w-full h-full object-cover"
+            />
           </motion.div>
 
           <motion.div
             variants={staggerItem}
-            className="bento-e rounded-2xl bg-sand-100 border border-ink-200/40 p-8 flex flex-col justify-between"
+            className="photo-bento-e col-span-2 md:col-span-1 aspect-[16/9] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
-            <h3 className="font-serif text-2xl md:text-3xl text-ink-800 leading-snug">
-              Spaces people
-              <br />
-              return to.
-            </h3>
-            <p className="text-xs uppercase tracking-ultra-wide font-semibold text-ink-400">
-              [ inscape.studio ]
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerItem}
-            className="bento-f rounded-2xl bg-sand-100 border border-ink-200/40 p-5 flex flex-col justify-end gap-2"
-          >
-            <span className="self-start bg-ink-100 text-ink-700 text-xs md:text-sm rounded-full rounded-bl-sm px-3 py-2">
-              Can we see the site Thursday?
-            </span>
-            <span className="self-end bg-[#2a4f26] text-white text-xs md:text-sm rounded-full rounded-br-sm px-3 py-2">
-              We'll be there.
-            </span>
-          </motion.div>
-
-          <motion.div
-            variants={staggerItem}
-            className="bento-g rounded-2xl bg-[#2a4f26] p-5 flex flex-col justify-between"
-          >
-            <MessageCircle size={22} className="text-sand-100" />
-            <div className="flex items-center -space-x-2">
-              <span className="w-7 h-7 rounded-full bg-sand-100 border-2 border-[#2a4f26]" />
-              <span className="w-7 h-7 rounded-full bg-clay-400 border-2 border-[#2a4f26]" />
-              <span className="w-7 h-7 rounded-full bg-sand-200 border-2 border-[#2a4f26]" />
-            </div>
-            <p className="text-sand-100 text-sm">We'll keep you posted.</p>
+            <ResilientImage
+              src={bentoSlots[4].src}
+              candidates={bentoSlots[4].candidates}
+              alt="Inscape studio"
+              className="w-full h-full object-cover"
+            />
           </motion.div>
         </motion.div>
 
         <style>{`
           @media (min-width: 768px) {
-            .bento-grid {
-              grid-template-columns: repeat(4, 1fr);
-              grid-template-rows: repeat(3, minmax(150px, auto));
+            .photo-bento {
+              grid-template-columns: repeat(3, 1fr);
+              grid-template-rows: repeat(2, minmax(200px, 1fr));
               grid-template-areas:
-                "a a b b"
-                "c d d e"
-                "c f g e";
+                "a b e"
+                "c d e";
             }
-            .bento-a { grid-area: a; }
-            .bento-b { grid-area: b; }
-            .bento-c { grid-area: c; }
-            .bento-d { grid-area: d; }
-            .bento-e { grid-area: e; }
-            .bento-f { grid-area: f; }
-            .bento-g { grid-area: g; }
+            .photo-bento-a { grid-area: a; }
+            .photo-bento-b { grid-area: b; }
+            .photo-bento-c { grid-area: c; }
+            .photo-bento-d { grid-area: d; }
+            .photo-bento-e { grid-area: e; }
           }
         `}</style>
       </section>
