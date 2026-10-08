@@ -28,7 +28,7 @@ export default function About() {
   const { data: introImages } = useSectionImages("about", "Hero Section");
   const { data: founderImages } = useSectionImages("about", "Second Section");
   const { data: howWeWorkImages } = useSectionImages("about", "How We Work_Section");
-  const { data: bentoImages } = useSectionImages("about", "Bento Grid_Section");
+  const { data: bentoImages } = useSectionImages("about", "Bento Grid_Last Section");
   const { data: driveTeamMembers } = useTeamMembers();
 
   const introSrc = (driveReady && introImages?.[0]?.src) || studioImage;
