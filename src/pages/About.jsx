@@ -55,11 +55,18 @@ export default function About() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* HEADER + INTRO WITH FULL-HEIGHT IMAGE */}
-      <section className="pt-32 md:pt-44 pb-24 md:pb-36 container-wide">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-y-12 gap-x-6 md:gap-x-10 lg:gap-x-16">
+      {/* HEADER + INTRO WITH FULL-HEIGHT IMAGE — this section skips the
+          site-wide 1440px container cap and instead uses the same
+          responsive side padding directly, with the image column set to
+          1fr. That way the image's gap to the text and its gap to the
+          viewport's edge are driven by the same padding/gap values and
+          stay equal at any screen width, including ultra-wide monitors
+          (where a capped container would otherwise leave a huge empty
+          margin only past the image, not past the text). */}
+      <section className="pt-32 md:pt-44 pb-24 md:pb-36 px-6 md:px-10 lg:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,620px)_1fr] gap-y-12 gap-x-6 md:gap-x-10 lg:gap-x-16">
           {/* Top left: Section label + Title */}
-          <motion.div className="md:col-span-6">
+          <motion.div className="md:col-start-1 md:row-start-1">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -68,7 +75,7 @@ export default function About() {
             >
               About Inscape
             </motion.p>
-            <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-ink-800 max-w-4xl leading-[1.1] mb-16">
+            <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-ink-800 leading-[1.1] mb-16">
               <AnimatedText text="A studio shaped by the places it works in" delay={0.3} />
             </h1>
           </motion.div>
@@ -83,7 +90,7 @@ export default function About() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            className="md:col-span-6 md:row-span-2"
+            className="md:col-start-2 md:row-start-1 md:row-span-2"
           >
             <div
               className="w-full h-full overflow-hidden rounded-sm bg-sand-200 aspect-[3/4] md:aspect-auto"
@@ -103,7 +110,7 @@ export default function About() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            className="md:col-span-6 space-y-6"
+            className="md:col-start-1 md:row-start-2 space-y-6"
           >
             <p className="text-lg md:text-xl leading-relaxed text-ink-700">
               Inscape Design Studio is an exclusive landscape design firm based in Kolkata, India, offering expert amenities in landscape planning, landscape architecture as well as urban scale intervention. We at Inscape always intend to produce a context responsive design that takes into account the association of the users as an intimate part of the space. These designs aim to bridge the gap between the built form and the softscape and merge the stark differences through intelligent interventions.
