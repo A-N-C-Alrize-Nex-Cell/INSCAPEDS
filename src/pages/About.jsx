@@ -401,7 +401,7 @@ export default function About() {
         >
           <motion.div
             variants={staggerItem}
-            className="photo-bento-a aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
+            className="photo-bento-a aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
             <ResilientImage
               src={bentoSlots[0].src}
@@ -413,7 +413,7 @@ export default function About() {
 
           <motion.div
             variants={staggerItem}
-            className="photo-bento-b aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
+            className="photo-bento-b aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
             <ResilientImage
               src={bentoSlots[1].src}
@@ -425,7 +425,7 @@ export default function About() {
 
           <motion.div
             variants={staggerItem}
-            className="photo-bento-c aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
+            className="photo-bento-c aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
             <ResilientImage
               src={bentoSlots[2].src}
@@ -437,7 +437,7 @@ export default function About() {
 
           <motion.div
             variants={staggerItem}
-            className="photo-bento-d aspect-square md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
+            className="photo-bento-d aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
           >
             <ResilientImage
               src={bentoSlots[3].src}
@@ -464,7 +464,7 @@ export default function About() {
           @media (min-width: 768px) {
             .photo-bento {
               grid-template-columns: repeat(3, 1fr);
-              grid-template-rows: repeat(2, minmax(200px, 1fr));
+              grid-template-rows: repeat(2, minmax(280px, 1fr));
               grid-template-areas:
                 "a b e"
                 "c d e";
