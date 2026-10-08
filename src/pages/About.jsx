@@ -64,7 +64,7 @@ export default function About() {
           (where a capped container would otherwise leave a huge empty
           margin only past the image, not past the text). */}
       <section className="pt-32 md:pt-44 pb-24 md:pb-36 px-6 md:px-10 lg:px-16">
-        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,620px)_1fr] gap-y-12 gap-x-6 md:gap-x-10 lg:gap-x-16">
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,380px)_1fr] lg:grid-cols-[minmax(0,500px)_1fr] xl:grid-cols-[minmax(0,620px)_1fr] 2xl:grid-cols-[minmax(0,780px)_1fr] gap-y-12 gap-x-6 md:gap-x-10 lg:gap-x-16">
           {/* Top left: Section label + Title */}
           <motion.div className="md:col-start-1 md:row-start-1">
             <motion.p
