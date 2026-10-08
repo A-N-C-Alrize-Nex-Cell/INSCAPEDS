@@ -86,7 +86,7 @@ export default function About() {
             >
               About Inscape
             </motion.p>
-            <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-ink-800 leading-[1.1] mb-16">
+            <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-ink-800 leading-[1.1]">
               <AnimatedText text="A studio shaped by the places it works in" delay={0.3} />
             </h1>
           </motion.div>
