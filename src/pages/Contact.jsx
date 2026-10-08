@@ -23,7 +23,11 @@ export default function Contact() {
   const [isMapInteractive, setIsMapInteractive] = useState(false);
 
   const { data: driveImages } = useContactImages();
-  const featuredImage = driveImages?.[0];
+  // Prefer a file whose name says it's meant for this page (e.g. "Contact
+  // Page_Team Photo") over whatever happens to sort first alphabetically —
+  // the folder can hold other reference/inspiration images too.
+  const featuredImage =
+    driveImages?.find((img) => /contact/i.test(img.name)) || driveImages?.[0];
   const featuredImageSrc = featuredImage?.src || FALLBACK_CONTACT_IMAGE;
   const featuredImageCandidates = featuredImage?.srcCandidates;
 

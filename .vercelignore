@@ -1,0 +1,7 @@
+node_modules
+build
+*.pdf
+pdf_extracted_text.txt
+drive-content-to-upload/
+.env
+.env.*

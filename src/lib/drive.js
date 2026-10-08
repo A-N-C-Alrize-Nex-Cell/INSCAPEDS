@@ -779,22 +779,28 @@ export function getCachedProjects(category) {
 
 
 /**
- * Parse team member file name format: "Name_Designation.ext" or "Name_Designation"
- * Returns { name, designation }
+ * Parse team member file name format: "Number_Name_Designation.ext" (the
+ * leading number is just a Drive sort-order prefix and is never shown) or,
+ * without a number, "Name_Designation.ext". Returns { name, designation }
  */
 export function parseTeamFileName(filename) {
   const nameWithoutExt = filename.replace(/\.[^.]+$/, "").trim();
-  const parts = nameWithoutExt.split("_");
-  
-  if (parts.length < 2) {
-    // No underscore found - use entire filename as name, no designation
-    return { name: nameWithoutExt, designation: "" };
+  const parts = nameWithoutExt.split("_").map((p) => p.trim()).filter(Boolean);
+
+  // Drop a leading pure-number ordering prefix, e.g. "1_Sujoy Das_Principal Architect"
+  if (parts.length >= 2 && /^\d+$/.test(parts[0])) {
+    parts.shift();
   }
-  
-  // Underscore found - first part is name, rest is designation
-  const name = parts[0].trim();
-  const designation = parts.slice(1).join(" ").trim();
-  
+
+  if (parts.length < 2) {
+    // No designation part found - use whatever's left as the name
+    return { name: parts[0] || nameWithoutExt, designation: "" };
+  }
+
+  // First remaining part is the name, the rest is the designation
+  const name = parts[0];
+  const designation = parts.slice(1).join(" ");
+
   return { name, designation };
 }
 

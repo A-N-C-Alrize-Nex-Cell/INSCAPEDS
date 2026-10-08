@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Sprout, MessageCircle } from "lucide-react";
 import {
   fadeUp,
   staggerContainer,
@@ -17,88 +17,16 @@ import LightboxModal from "../components/LightboxModal";
 
 const studioImage =
   "https://images.pexels.com/photos/6615107/pexels-photo-6615107.jpeg?auto=compress&cs=tinysrgb&w=1600";
-const studioImage2 =
-  "https://images.pexels.com/photos/9052536/pexels-photo-9052536.jpeg?auto=compress&cs=tinysrgb&w=1200";
 const founderImage =
   "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=800";
 
-const galleryData = [
-  { src: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80", stateA: { top: "10%", left: "5%", width: "25%", height: "25%", rotateX: 10, rotateY: 35, rotateZ: -5, z: -100 } },
-  { src: "https://images.pexels.com/photos/9052536/pexels-photo-9052536.jpeg?auto=format&fit=crop&w=800&q=80", stateA: { top: "15%", left: "40%", width: "20%", height: "15%", rotateX: 0, rotateY: 0, rotateZ: 0, z: -200 } },
-  { src: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80", stateA: { top: "10%", left: "65%", width: "25%", height: "25%", rotateX: 10, rotateY: -35, rotateZ: 5, z: -100 } },
-  { src: "https://images.pexels.com/photos/6615107/pexels-photo-6615107.jpeg?auto=format&fit=crop&w=800&q=80", stateA: { top: "45%", left: "15%", width: "25%", height: "10%", rotateX: 15, rotateY: 30, rotateZ: 0, z: 0 } },
-  { src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", hasText: true, stateA: { top: "35%", left: "35%", width: "30%", height: "30%", rotateX: 0, rotateY: 0, rotateZ: 0, z: 100, opacity: 0, scale: 0.8 } },
-  { src: "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=format&fit=crop&w=800&q=80", stateA: { top: "40%", left: "60%", width: "30%", height: "25%", rotateX: 10, rotateY: -30, rotateZ: 0, z: 0 } },
-  { src: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80", stateA: { top: "70%", left: "15%", width: "25%", height: "20%", rotateX: 20, rotateY: 40, rotateZ: 0, z: 50 } },
-  { src: "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=format&fit=crop&w=800&q=80", stateA: { top: "75%", left: "38%", width: "24%", height: "15%", rotateX: 0, rotateY: 0, rotateZ: 0, z: 100 } },
-  { src: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80", stateA: { top: "70%", left: "60%", width: "25%", height: "20%", rotateX: 20, rotateY: -40, rotateZ: 0, z: 50 } }
-];
-
-const GalleryImage = ({ data, index, scrollYProgress }) => {
-  const row = Math.floor(index / 3);
-  const col = index % 3;
-
-  const stateB = {
-    top: `${row * 33.333}%`,
-    left: `${col * 33.333}%`,
-    width: "33.333%",
-    height: "33.333%",
-    rotateX: 0,
-    rotateY: 0,
-    rotateZ: 0,
-    z: 0,
-    opacity: 1,
-    scale: 1
-  };
-
-  const range = [0, 0.4, 0.8, 1];
-
-  const top = useTransform(scrollYProgress, range, [data.stateA.top, data.stateA.top, stateB.top, stateB.top]);
-  const left = useTransform(scrollYProgress, range, [data.stateA.left, data.stateA.left, stateB.left, stateB.left]);
-  const width = useTransform(scrollYProgress, range, [data.stateA.width, data.stateA.width, stateB.width, stateB.width]);
-  const height = useTransform(scrollYProgress, range, [data.stateA.height, data.stateA.height, stateB.height, stateB.height]);
-
-  const rotateX = useTransform(scrollYProgress, range, [data.stateA.rotateX || 0, data.stateA.rotateX || 0, stateB.rotateX, stateB.rotateX]);
-  const rotateY = useTransform(scrollYProgress, range, [data.stateA.rotateY || 0, data.stateA.rotateY || 0, stateB.rotateY, stateB.rotateY]);
-  const rotateZ = useTransform(scrollYProgress, range, [data.stateA.rotateZ || 0, data.stateA.rotateZ || 0, stateB.rotateZ, stateB.rotateZ]);
-  const z = useTransform(scrollYProgress, range, [data.stateA.z || 0, data.stateA.z || 0, stateB.z, stateB.z]);
-
-  const opacity = useTransform(scrollYProgress, range, [data.stateA.opacity ?? 1, data.stateA.opacity ?? 1, stateB.opacity, stateB.opacity]);
-  const scale = useTransform(scrollYProgress, range, [data.stateA.scale ?? 1, data.stateA.scale ?? 1, stateB.scale, stateB.scale]);
-
-  return (
-    <motion.div
-      style={{ top, left, width, height, rotateX, rotateY, rotateZ, z, opacity, scale }}
-      className="absolute overflow-hidden bg-ink-800 border-[1px] border-ink-950 flex items-center justify-center group transform-gpu"
-    >
-      <img
-        src={data.src}
-        alt={`Gallery ${index + 1}`}
-        className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${data.hasText ? 'grayscale opacity-40' : 'grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105'}`}
-      />
-      {data.hasText && (
-        <p className="relative z-10 font-sans text-sm md:text-2xl lg:text-3xl font-medium text-sand-50 tracking-wide text-center px-4 leading-relaxed group-hover:scale-105 transition-transform duration-700">
-          아직 분양 시장은<br className="md:hidden" /> 하지 않습니다
-        </p>
-      )}
-    </motion.div>
-  );
-};
-
 export default function About() {
-  const targetRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-    offset: ["start start", "end end"]
-  });
-
   // Live Drive data (only trusted once VITE_DRIVE_API_KEY / ROOT_FOLDER_ID are
   // set — see DRIVE_INTEGRATION.md); each falls back to the stock photo above
   // until its About/<section> Drive folder has an image in it.
   const driveReady = isDriveConfigured();
   const { data: introImages } = useSectionImages("about", "Hero Section");
   const { data: founderImages } = useSectionImages("about", "Second Section");
-  const { data: studioImages } = useSectionImages("about", "Studio Values_Section");
   const { data: howWeWorkImages } = useSectionImages("about", "How We Work_Section");
   const { data: driveTeamMembers } = useTeamMembers();
 
@@ -106,18 +34,11 @@ export default function About() {
   const introCandidates = driveReady && introImages?.[0]?.srcCandidates;
   const founderSrc = (driveReady && founderImages?.[0]?.src) || founderImage;
   const founderCandidates = driveReady && founderImages?.[0]?.srcCandidates;
-  const studioSrc = (driveReady && studioImages?.[0]?.src) || studioImage2;
-  const studioCandidates = driveReady && studioImages?.[0]?.srcCandidates;
-  const howWeWorkSrc = driveReady && howWeWorkImages?.[0]?.src;
-  const howWeWorkCandidates = driveReady && howWeWorkImages?.[0]?.srcCandidates;
 
   // Use Drive team members if available, otherwise fallback to static data
   const displayTeam = (driveReady && driveTeamMembers && driveTeamMembers.length > 0)
     ? driveTeamMembers
     : team;
-
-  console.log("[About] driveTeamMembers:", driveTeamMembers);
-  console.log("[About] displayTeam:", displayTeam);
 
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [lightboxList, setLightboxList] = useState([]);
@@ -136,9 +57,9 @@ export default function About() {
     >
       {/* HEADER + INTRO WITH FULL-HEIGHT IMAGE */}
       <section className="pt-32 md:pt-44 pb-24 md:pb-36 container-wide">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:grid-rows-[auto_1fr]">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-y-12 gap-x-6 md:gap-x-10 lg:gap-x-16">
           {/* Top left: Section label + Title */}
-          <motion.div className="md:col-span-7">
+          <motion.div className="md:col-span-6">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -152,15 +73,21 @@ export default function About() {
             </h1>
           </motion.div>
 
-          {/* Top right: Image (row 1) */}
+          {/* Top right: Image — stretches to match the full height of the
+              text column it sits beside (title + paragraphs), so its top
+              and bottom edges align with the text instead of being sized
+              off its own aspect ratio. Falls back to a fixed ratio on
+              mobile, where it stacks standalone above the text. */}
           <motion.div
             variants={scaleIn}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            className="md:col-span-5 md:row-span-2"
+            className="md:col-span-6 md:row-span-2"
           >
-            <div className="w-full h-full aspect-[3/4] md:aspect-auto overflow-hidden rounded-sm">
+            <div
+              className="w-full h-full overflow-hidden rounded-sm bg-sand-200 aspect-[3/4] md:aspect-auto"
+            >
               <ResilientImage
                 src={introSrc}
                 candidates={introCandidates}
@@ -176,7 +103,7 @@ export default function About() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            className="md:col-span-7 space-y-6"
+            className="md:col-span-6 space-y-6"
           >
             <p className="text-lg md:text-xl leading-relaxed text-ink-700">
               Inscape Design Studio is an exclusive landscape design firm based in Kolkata, India, offering expert amenities in landscape planning, landscape architecture as well as urban scale intervention. We at Inscape always intend to produce a context responsive design that takes into account the association of the users as an intimate part of the space. These designs aim to bridge the gap between the built form and the softscape and merge the stark differences through intelligent interventions.
@@ -344,17 +271,15 @@ export default function About() {
               className="space-y-16 md:space-y-24"
             >
               {processSteps.map((step, i) => {
-                // Find matching image from Drive for this step (e.g., 1.jpg or 01.jpg for step 01)
+                // Find matching image from Drive for this step. Matches by
+                // numeric value of the filename with its extension stripped
+                // (handles "4.jpg", "04.jpg", "4_build.png", or a bare "4"
+                // with no extension at all — all resolve to step 04).
                 const numInt = parseInt(step.number, 10);
                 const stepImage = howWeWorkImages?.find((img) => {
-                  const name = (img.name || "").toLowerCase();
-                  return (
-                    name.startsWith(step.number) ||
-                    name.startsWith(`${numInt}.`) ||
-                    name.startsWith(`${numInt}_`) ||
-                    name.startsWith(`0${numInt}.`) ||
-                    name.startsWith(`0${numInt}_`)
-                  );
+                  const base = (img.name || "").replace(/\.[^.]+$/, "").trim();
+                  const baseNum = parseInt(base, 10);
+                  return baseNum === numInt;
                 }) || howWeWorkImages?.[i] || null;
 
                 return (
@@ -444,151 +369,118 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* STUDIO PHOTO - BENTO GRID */}
-      <section className="container-wide pb-24 md:pb-36">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          {/* Row 1 */}
+      {/* BENTO GRID */}
+      <section className="container-wide pt-0 pb-24 md:pb-36">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          className="bento-grid grid grid-cols-1 gap-4 md:gap-5"
+        >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
+            variants={staggerItem}
+            className="bento-a rounded-2xl bg-sand-100 border border-ink-200/40 p-8 flex items-center"
           >
-            <ResilientImage
-              src={studioSrc}
-              candidates={studioCandidates}
-              alt="Studio interior"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
+            <h3 className="font-serif text-2xl md:text-3xl text-ink-800 leading-snug">
+              Design now,
+              <br />
+              grow closer.
+            </h3>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
+            variants={staggerItem}
+            className="bento-b rounded-2xl bg-[#2a4f26] p-8 flex flex-col justify-between"
           >
-            <img
-              src="https://images.pexels.com/photos/9052536/pexels-photo-9052536.jpeg?auto=compress&cs=tinysrgb&w=1200"
-              alt="Design process"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
+            <Sprout size={28} className="text-sand-100" />
+            <p className="font-serif text-xl md:text-2xl text-sand-100 mt-6">
+              Built on collaboration, from first sketch to final planting.
+            </p>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
+            variants={staggerItem}
+            className="bento-c rounded-2xl bg-ink-800 text-white p-6 flex flex-col justify-between"
           >
-            <img
-              src="https://images.pexels.com/photos/6615107/pexels-photo-6615107.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              alt="Sketching"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-          </motion.div>
-
-          {/* Row 2 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
-          >
-            <img
-              src="https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="Team collaboration"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group relative flex items-center justify-center"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80"
-              alt="Architecture"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-700 flex items-center justify-center">
-              <p className="text-sand-50 text-center font-serif text-xl md:text-2xl">아직 분양 시장은<br />하지 않습니다</p>
+            <div className="flex items-center justify-between text-xs uppercase tracking-ultra-wide font-semibold">
+              <span>24 Mar</span>
+              <span>09:00–11:00</span>
+            </div>
+            <div>
+              <p className="font-serif text-xl md:text-2xl mb-3">Site Walkthrough</p>
+              <span className="inline-block text-[11px] uppercase tracking-ultra-wide font-semibold bg-white/20 rounded-full px-3 py-1">
+                Client Consultation
+              </span>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
+            variants={staggerItem}
+            className="bento-d rounded-2xl bg-sand-100 border border-ink-200/40 p-6 flex items-center justify-center"
           >
-            <img
-              src="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="Professional workspace"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-          </motion.div>
-
-          {/* Row 3 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
-              alt="Urban design"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
+            <p className="font-serif text-2xl tracking-wide text-ink-800">INSCAPE</p>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
+            variants={staggerItem}
+            className="bento-e rounded-2xl bg-sand-100 border border-ink-200/40 p-8 flex flex-col justify-between"
           >
-            <img
-              src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80"
-              alt="Architecture detail"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
+            <h3 className="font-serif text-2xl md:text-3xl text-ink-800 leading-snug">
+              Spaces people
+              <br />
+              return to.
+            </h3>
+            <p className="text-xs uppercase tracking-ultra-wide font-semibold text-ink-400">
+              [ inscape.studio ]
+            </p>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="aspect-[4/3] overflow-hidden rounded-sm group"
+            variants={staggerItem}
+            className="bento-f rounded-2xl bg-sand-100 border border-ink-200/40 p-5 flex flex-col justify-end gap-2"
           >
-            <img
-              src="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="Building design"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
+            <span className="self-start bg-ink-100 text-ink-700 text-xs md:text-sm rounded-full rounded-bl-sm px-3 py-2">
+              Can we see the site Thursday?
+            </span>
+            <span className="self-end bg-[#2a4f26] text-white text-xs md:text-sm rounded-full rounded-br-sm px-3 py-2">
+              We'll be there.
+            </span>
           </motion.div>
-        </div>
-      </section>
 
-      {/* 3D TO FLAT GALLERY */}
-      <section ref={targetRef} className="w-full h-[300vh] bg-ink-950 relative">
-        <div className="sticky top-0 w-full h-screen overflow-hidden bg-ink-950" style={{ perspective: 1200 }}>
-          {galleryData.map((data, index) => (
-            <GalleryImage key={index} data={data} index={index} scrollYProgress={scrollYProgress} />
-          ))}
-        </div>
+          <motion.div
+            variants={staggerItem}
+            className="bento-g rounded-2xl bg-[#2a4f26] p-5 flex flex-col justify-between"
+          >
+            <MessageCircle size={22} className="text-sand-100" />
+            <div className="flex items-center -space-x-2">
+              <span className="w-7 h-7 rounded-full bg-sand-100 border-2 border-[#2a4f26]" />
+              <span className="w-7 h-7 rounded-full bg-clay-400 border-2 border-[#2a4f26]" />
+              <span className="w-7 h-7 rounded-full bg-sand-200 border-2 border-[#2a4f26]" />
+            </div>
+            <p className="text-sand-100 text-sm">We'll keep you posted.</p>
+          </motion.div>
+        </motion.div>
+
+        <style>{`
+          @media (min-width: 768px) {
+            .bento-grid {
+              grid-template-columns: repeat(4, 1fr);
+              grid-template-rows: repeat(3, minmax(150px, auto));
+              grid-template-areas:
+                "a a b b"
+                "c d d e"
+                "c f g e";
+            }
+            .bento-a { grid-area: a; }
+            .bento-b { grid-area: b; }
+            .bento-c { grid-area: c; }
+            .bento-d { grid-area: d; }
+            .bento-e { grid-area: e; }
+            .bento-f { grid-area: f; }
+            .bento-g { grid-area: g; }
+          }
+        `}</style>
       </section>
 
       {/* CTA */}
