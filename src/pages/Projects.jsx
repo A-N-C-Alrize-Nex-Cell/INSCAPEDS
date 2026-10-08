@@ -10,6 +10,7 @@ import {
   AnimatedText,
 } from "../lib/animations";
 import { projects as staticProjects, projectCategories as staticCategories } from "../data/content";
+import { getProjectMetadata } from "../data/projectMetadata";
 import { useProjectCategories, useProjectsWithDetails } from "../hooks/useDrive";
 import { isDriveConfigured } from "../lib/drive";
 import ResilientImage from "../components/ResilientImage";
@@ -30,16 +31,21 @@ export default function Projects() {
 
   const filtered = useMemo(() => {
     if (driveReady) {
-      return (driveProjects || []).map((p) => ({
-        id: p.id,
-        title: p.title,
-        category: p.category,
-        location: p.location,
-        year: p.year,
-        // Grid tile — use the smaller thumbnail, not the full 1920px image.
-        image: p.cover?.thumb || "",
-        imageCandidates: p.cover?.thumbCandidates,
-      }));
+      return (driveProjects || []).map((p) => {
+        const meta = getProjectMetadata(p.title) || {};
+        return {
+          id: p.id,
+          title: p.title,
+          category: p.category,
+          location: p.location || meta.location || "",
+          status: p.status || meta.status || (p.year ? `Completed ${p.year}` : "Completed 2022"),
+          year: p.year,
+          area: p.area || meta.area || "10 Acres",
+          // Grid tile — use the smaller thumbnail, not the full 1920px image.
+          image: p.cover?.thumb || "",
+          imageCandidates: p.cover?.thumbCandidates,
+        };
+      });
     }
     if (activeCategory === "All") return staticProjects;
     return staticProjects.filter((p) => p.category === activeCategory);
@@ -72,7 +78,7 @@ export default function Projects() {
         >
           Our Work
         </motion.p>
-        <h1 className="font-serif text-[6.5vw] md:text-[4.5vw] lg:text-[4vw] xl:text-[3.5rem] text-ink-800 leading-[1.1]">
+        <h1 className="font-sans font-light text-[6.5vw] md:text-[4.5vw] lg:text-[4vw] xl:text-[3.5rem] text-ink-800 leading-[1.1] tracking-tight">
           <AnimatedText text="Projects Across Scales And Places" delay={0.3} />
         </h1>
       </section>
@@ -139,17 +145,13 @@ export default function Projects() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-4 flex items-baseline justify-between">
-                  <h3 className="font-serif text-lg text-ink-800">{project.title}</h3>
-                  <span className="text-xs uppercase tracking-wide text-ink-400">
-                    {project.category}
-                  </span>
+                <div className="mt-3 flex items-start justify-between gap-2">
+                  <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">{project.title}</h3>
+                  <div className="text-left text-[10px] sm:text-[11px] text-ink-500 font-sans space-y-0.5 flex-shrink-0">
+                    <p>Status: {project.status || (project.year ? `Completed ${project.year}` : "Completed 2022")}</p>
+                    <p>Area: {project.area || project.size || "10 Acres"}</p>
+                  </div>
                 </div>
-                {(project.location || project.year) && (
-                  <p className="text-sm text-ink-400 mt-1">
-                    {[project.location, project.year].filter(Boolean).join(" — ")}
-                  </p>
-                )}
               </Link>
             </motion.div>
           ))}

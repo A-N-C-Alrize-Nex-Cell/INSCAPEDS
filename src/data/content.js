@@ -1,181 +1,26 @@
-export const projects = [
-  {
-    id: "casa-terracotta",
-    title: "Casa Terracotta",
-    category: "Residential",
-    location: "Sedona, Arizona",
-    year: 2024,
-    size: "4,200 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A desert retreat carved into the red rock landscape, blending rammed-earth walls with deep overhangs that frame the canyon light. The home breathes with the diurnal cycle, cool at midday and warm at dusk.",
-    notes:
-      "Passive solar orientation, locally sourced rammed earth, rainwater harvesting, and cross-ventilation reduce energy demand by 62%.",
-  },
-  {
-    id: "marlowe-pavilion",
-    title: "Marlowe Pavilion",
-    category: "Commercial",
-    location: "Austin, Texas",
-    year: 2023,
-    size: "18,000 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A headquarters for a technology firm that rejects the glass-box trope. Cast concrete and timber create a grounded, tactile workplace organized around a central courtyard of reflected light.",
-    notes:
-      "Mass timber structure, operable facade louvers, and a daylit central atrium reduce artificial lighting needs by 70%.",
-  },
-  {
-    id: "verge-gallery",
-    title: "Verge Gallery",
-    category: "Interiors",
-    location: "Brooklyn, New York",
-    year: 2024,
-    size: "3,400 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "The transformation of a former machine shop into a contemplative art gallery. Original brick and steel are preserved and contrasted with planes of microcement and hand-finished oak.",
-    notes:
-      "Adaptive reuse of 95% of existing structure. Radiant floor heating and north-facing skylights provide even, diffuse daylight.",
-  },
-  {
-    id: "harbor-house",
-    title: "Harbor House",
-    category: "Residential",
-    location: "Camden, Maine",
-    year: 2022,
-    size: "6,800 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A coastal family residence that dissolves the boundary between interior and the surrounding forest. Floor-to-ceiling glass walls slide away, turning the living space into a covered clearing.",
-    notes:
-      "Locally milled cedar cladding, ground-source heat pump, and a living roof of native coastal grasses.",
-  },
-  {
-    id: "north-square",
-    title: "North Square",
-    category: "Urban",
-    location: "Portland, Oregon",
-    year: 2023,
-    size: "2.4 acres",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A civic plaza reimagined as a permeable urban room. The design replaces asphalt with a gradient of stone, planting, and water, creating a space that hosts farmers' markets, quiet reflection, and summer concerts.",
-    notes:
-      "Permeable paving manages 100-year storm events on site. 40 new trees and a rain garden reduce urban heat by 4°C.",
-  },
-  {
-    id: "stillwater",
-    title: "Stillwater Retreat",
-    category: "Residential",
-    location: "Lake Tahoe, California",
-    year: 2021,
-    size: "5,100 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A lakeside home that hovers above the waterline on a steel platform, minimizing disruption to the fragile shoreline ecosystem. The dark cedar shell recedes into the pines at dusk.",
-    notes:
-      "Elevated foundation preserves native soil. Triple-glazed windows and a heat-recovery ventilation system maintain comfort year-round.",
-  },
-  {
-    id: "foundry-lofts",
-    title: "Foundry Lofts",
-    category: "Commercial",
-    location: "Pittsburgh, Pennsylvania",
-    year: 2022,
-    size: "42,000 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "The adaptive reuse of a 1920s steel foundry into a mixed-use creative complex. The original crane rails and steel columns are retained as wayfinding and memory, threading new workspaces through the industrial skeleton.",
-    notes:
-      "Historic tax credit restoration. New inserts are structurally independent and fully demountable for future adaptability.",
-  },
-  {
-    id: "cedar-court",
-    title: "Cedar Court Residence",
-    category: "Residential",
-    location: "Aspen, Colorado",
-    year: 2023,
-    size: "7,200 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A mountain home organized around a south-facing courtyard that captures winter sun while shielding from prevailing winds. Stone walls extend into the landscape, stitching the house to its ridge.",
-    notes:
-      "Dry-stack stone from a local quarry, passive solar gain, and a high-performance envelope rated for -30°C.",
-  },
-  {
-    id: "atrium-tower",
-    title: "Atrium Tower",
-    category: "Commercial",
-    location: "Denver, Colorado",
-    year: 2024,
-    size: "240,000 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A twenty-two-story office tower organized around a soaring central atrium that pulls daylight deep into the floor plates. External shading fins track the sun, reducing cooling loads while framing mountain views.",
-    notes:
-      "LEED Platinum targeted. Structural exoskeleton allows column-free interiors and future reconfiguration.",
-  },
-  {
-    id: "meadow-house",
-    title: "Meadow House",
-    category: "Interiors",
-    location: "Hudson, New York",
-    year: 2022,
-    size: "2,800 sq ft",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A full interior renovation of a Victorian cottage, stripping away decades of additions to reveal the original timber frame. New insertions of white oak and lime plaster create a calm, contemporary layer within the historic shell.",
-    notes:
-      "Lime-based plasters and natural oil finishes ensure zero-VOC interiors. Original timbers were re-milled for shelving and treads.",
-  },
-  {
-    id: "greenway-corridor",
-    title: "Greenway Corridor",
-    category: "Landscape",
-    location: "Minneapolis, Minnesota",
-    year: 2023,
-    size: "1.8 miles",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "The transformation of a derelict rail line into a linear park that threads through three neighborhoods. Native prairie planting, stormwater gardens, and quiet seating nooks create a continuous ecological and social spine.",
-    notes:
-      "Restored 14 acres of native prairie. Bioswales manage 1.2 million gallons of stormwater per storm event.",
-  },
-  {
-    id: "limestone-pavilion",
-    title: "Limestone Pavilion",
-    category: "Landscape",
-    location: "San Antonio, Texas",
-    year: 2021,
-    size: "0.6 acres",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A garden pavilion and event terrace set within a historic botanical garden. Thin limestone columns echo the site's geology, supporting a floating roof that shelters gatherings while framing the canopy above.",
-    notes:
-      "Stone sourced from the same quarry as the garden's 1930s walls. Rainwater collected from the roof irrigates the surrounding beds.",
-  },
-];
+import { projectRegistry } from "./projectMetadata";
+
+export const projects = projectRegistry.map((p, idx) => ({
+  id: p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+  title: p.title,
+  category: p.category,
+  location: p.location,
+  status: p.status,
+  year: p.status.match(/\d{4}/)?.[0] || 2022,
+  area: p.area,
+  size: p.area,
+  image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+  description: p.description || `${p.title} located in ${p.location}. Project status: ${p.status}. Total area: ${p.area}.`,
+}));
 
 export const projectCategories = [
   "All",
+  "Hospitality",
   "Residential",
-  "Commercial",
-  "Interiors",
-  "Urban",
-  "Landscape",
+  "Corporate",
+  "Public",
+  "Educational",
+  "Bunglow Landscape",
 ];
 
 export const team = [

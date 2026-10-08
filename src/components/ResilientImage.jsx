@@ -19,20 +19,25 @@
  *
  * Pass either a single `src` (behaves like a plain <img>) or a `candidates`
  * array (tried in order, left to right, on each load failure — see
- * `driveImageCandidates` in src/lib/drive.js). If every candidate fails,
- * renders an empty placeholder box instead of a permanently broken image icon.
+ * `driveImageCandidates` in src/lib/drive.js). Optionally pass `fallbackSrc`
+ * — a last-resort image (e.g. a bundled/stock photo) tried only after every
+ * candidate has failed, so a visitor sees something intentional instead of
+ * an empty box. If that fails too (or none was given), renders an empty
+ * placeholder box instead of a permanently broken image icon.
  */
 import { useEffect, useState } from "react";
 
 export default function ResilientImage({
   src,
   candidates,
+  fallbackSrc,
   alt = "",
   className = "",
   onLoad,
   ...rest
 }) {
-  const list = candidates?.length ? candidates : src ? [src] : [];
+  const base = candidates?.length ? candidates : src ? [src] : [];
+  const list = fallbackSrc ? [...base, fallbackSrc] : base;
   const listKey = list.join("|");
   const [index, setIndex] = useState(0);
   const [failed, setFailed] = useState(false);

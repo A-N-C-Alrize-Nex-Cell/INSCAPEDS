@@ -12,6 +12,7 @@
  */
 
 import { DRIVE_CONFIG } from "../config/drive";
+import { getProjectMetadata } from "../data/projectMetadata";
 
 const API = "https://www.googleapis.com/drive/v3/files";
 const FOLDER_MIME = "application/vnd.google-apps.folder";
@@ -38,12 +39,8 @@ function cacheGet(key) {
   try {
     const raw = store.getItem(key);
     if (!raw) return null;
-    const { t, v } = JSON.parse(raw);
-    if (DRIVE_CONFIG.cacheTtlMs && Date.now() - t > DRIVE_CONFIG.cacheTtlMs) {
-      store.removeItem(key);
-      return null;
-    }
-    return v;
+    const { v } = JSON.parse(raw);
+    return v || null;
   } catch {
     return null;
   }
@@ -162,7 +159,32 @@ export async function listChildren(folderId) {
 /* -------------------------------------------------------------------------- */
 
 export const isFolder = (f) => f?.mimeType === FOLDER_MIME;
-export const isImage = (f) => typeof f?.mimeType === "string" && f.mimeType.startsWith("image/");
+
+/**
+ * Image file extensions recognized as a fallback when a file's `mimeType`
+ * isn't a proper `image/...` type — some upload paths (certain sync clients,
+ * manual re-uploads, some mobile exports) leave Drive reporting a generic
+ * type like `application/octet-stream` for a file that's unambiguously an
+ * image by its name. Covers common photo formats (incl. HEIC/HEIF from
+ * iPhones, AVIF), legacy/web formats (GIF, BMP, TIFF, ICO), vector (SVG),
+ * and common RAW camera formats — browsers vary in which of these they can
+ * actually render, but this is about *detecting* the file as an image, not
+ * guaranteeing every browser can display it.
+ */
+const IMAGE_EXTENSIONS = new Set([
+  "jpg", "jpeg", "jpe", "jfif", "png", "gif", "webp", "avif",
+  "bmp", "tif", "tiff", "svg", "ico", "heic", "heif",
+  "cr2", "cr3", "nef", "arw", "dng", "orf", "rw2", "raf",
+]);
+
+function hasImageExtension(name) {
+  const m = /\.([a-z0-9]+)$/i.exec(String(name || "").trim());
+  return !!m && IMAGE_EXTENSIONS.has(m[1].toLowerCase());
+}
+
+export const isImage = (f) =>
+  (typeof f?.mimeType === "string" && f.mimeType.startsWith("image/")) ||
+  hasImageExtension(f?.name);
 
 /** File names (case-insensitive) checked for per-project text metadata. */
 const INFO_FILE_NAMES = ["info.txt", "info.md", "readme.txt"];
@@ -372,22 +394,25 @@ export async function pageFolderId(pageKey) {
   return folder?.id || null;
 }
 
-/** Images for one named section subfolder of a page ("Hero", "01 Hero", …). */
+/** Images for one named section subfolder of a page ("Hero", "01 Hero", …). Accepts a string or array of candidate names. */
 export async function sectionImages(pageKey, sectionName, opts) {
   const pid = await pageFolderId(pageKey);
   if (!pid) return [];
-  const section = await findChildFolder(pid, sectionName);
-  if (!section) {
-    // also try matching after stripping a numeric prefix ("01 Hero" === "Hero")
-    const kids = await listChildren(pid);
-    const target = sectionName.trim().toLowerCase();
+  const names = Array.isArray(sectionName) ? sectionName : [sectionName];
+  const kids = await listChildren(pid);
+
+  for (const name of names) {
+    const target = String(name).trim().toLowerCase();
     const match = kids.find(
-      (f) => isFolder(f) && parseOrdered(f.name).label.toLowerCase() === target
+      (f) =>
+        isFolder(f) &&
+        (f.name.trim().toLowerCase() === target || parseOrdered(f.name).label.toLowerCase() === target)
     );
-    if (!match) return [];
-    return folderImages(match.id, opts);
+    if (match) {
+      return folderImages(match.id, opts);
+    }
   }
-  return folderImages(section.id, opts);
+  return [];
 }
 
 /**
@@ -562,17 +587,23 @@ export async function projectImages(folderId) {
  * to special-case it. Kept separate from `projectImages` so existing callers
  * of that function are unaffected.
  */
-export async function projectDetails(folderId) {
+export async function projectDetails(folderId, titleHint = "") {
   const kids = await listChildren(folderId);
   const images = kids.filter(isImage).map((f) => toImage(f, { width: DRIVE_CONFIG.imageWidth }));
   const infoFile = kids.find(
     (f) => !isFolder(f) && INFO_FILE_NAMES.includes(f.name.trim().toLowerCase())
   );
   const info = parseProjectInfo(infoFile ? await fetchFileText(infoFile.id) : "");
+  const meta = getProjectMetadata(titleHint) || {};
+
   return {
     cover: pickCover(images),
     gallery: images,
-    ...info,
+    location: info.location || meta.location || "",
+    area: info.area || meta.area || "",
+    status: info.status || meta.status || (info.year ? `Completed ${info.year}` : "Completed 2022"),
+    year: info.year || meta.status?.match(/\d{4}/)?.[0] || "2022",
+    description: info.description || meta.description || "",
   };
 }
 
@@ -586,9 +617,16 @@ export async function prefetchAllProjects() {
   if (!isDriveConfigured()) return;
   
   try {
-    console.debug("[drive] prefetching all projects...");
+    console.debug("[drive] prefetching all pages and projects...");
     const start = performance.now();
     
+    // Background promises for page section images (Awards, Contact, About)
+    const pagePrefetches = [
+      pageSections("awards").catch(() => []),
+      pageSections("about").catch(() => []),
+      contactImages().catch(() => []),
+    ];
+
     // Fetch categories first
     const categories = await projectCategories();
     console.debug("[drive] prefetch: got", categories.length, "categories");
@@ -602,15 +640,116 @@ export async function prefetchAllProjects() {
     const allProjs = projectsByCategory.flat();
     console.debug("[drive] prefetch: got", allProjs.length, "projects total");
     
-    await Promise.all(
-      allProjs.slice(0, 12).map(p => projectImages(p.folderId)) // Prefetch first 12 projects
-    );
+    const results = await Promise.all([
+      ...pagePrefetches,
+      ...allProjs.slice(0, 12).map(p => projectImages(p.folderId)) // Prefetch first 12 projects
+    ]);
+
+    // Preload image URLs into browser memory cache for instant rendering
+    const imageUrls = results
+      .flat()
+      .filter(Boolean)
+      .map(item => item.src || item.cover?.src)
+      .filter(Boolean);
+
+    imageUrls.slice(0, 30).forEach(url => {
+      const img = new Image();
+      img.src = url;
+    });
     
     const elapsed = performance.now() - start;
     console.debug(`[drive] prefetch complete in ${elapsed.toFixed(0)}ms`);
   } catch (err) {
     console.error("[drive] prefetch failed:", err);
   }
+}
+
+/** Synchronously retrieve cached folder children if available. */
+export function getCachedChildren(folderId) {
+  if (!folderId) return null;
+  const cacheKey = `drive:${CACHE_VERSION}:children:${folderId}`;
+  return cacheGet(cacheKey);
+}
+
+/** Synchronously resolve page folder ID from config or cache. */
+export function getCachedPageFolderId(pageKey) {
+  if (DRIVE_CONFIG.directFolders) {
+    if (DRIVE_CONFIG.directFolders[pageKey]) return DRIVE_CONFIG.directFolders[pageKey];
+    const alias = pageKey === "about" ? "aboutUsPage" : `${pageKey}Page`;
+    if (DRIVE_CONFIG.directFolders[alias]) return DRIVE_CONFIG.directFolders[alias];
+  }
+  const folderName = DRIVE_CONFIG.pages[pageKey];
+  if (!folderName || !DRIVE_CONFIG.rootFolderId) return null;
+  const rootKids = getCachedChildren(DRIVE_CONFIG.rootFolderId);
+  if (!rootKids) return null;
+  const target = folderName.trim().toLowerCase();
+  const found = rootKids.find((f) => isFolder(f) && f.name.trim().toLowerCase() === target);
+  return found?.id || null;
+}
+
+/** Synchronously retrieve cached section images if available in localStorage. */
+export function getCachedSectionImages(pageKey, sectionName, opts) {
+  const pid = getCachedPageFolderId(pageKey);
+  if (!pid) return null;
+  const kids = getCachedChildren(pid);
+  if (!kids) return null;
+
+  const names = Array.isArray(sectionName) ? sectionName : [sectionName];
+  for (const name of names) {
+    const target = String(name).trim().toLowerCase();
+    const match = kids.find(
+      (f) =>
+        isFolder(f) &&
+        (f.name.trim().toLowerCase() === target || parseOrdered(f.name).label.toLowerCase() === target)
+    );
+    if (match) {
+      const secKids = getCachedChildren(match.id);
+      if (secKids) {
+        return secKids.filter(isImage).map((f) => toImage(f, opts));
+      }
+    }
+  }
+  return null;
+}
+
+/** Synchronously retrieve cached team members if available. */
+export function getCachedTeamMembers() {
+  const aboutUsFolderId = DRIVE_CONFIG.directFolders?.aboutUsPage;
+  if (!aboutUsFolderId) return null;
+  const kids = getCachedChildren(aboutUsFolderId);
+  if (!kids) return null;
+  const peopleFolder = kids.find(
+    (f) => isFolder(f) && f.name.trim().toLowerCase() === "our people_section"
+  );
+  if (!peopleFolder) return null;
+  const images = getCachedChildren(peopleFolder.id);
+  if (!images) return null;
+  return images.filter(isImage).map((f) => {
+    const img = toImage(f);
+    const { name, designation } = parseTeamFileName(img.name);
+    return {
+      name,
+      designation,
+      src: img.src,
+      srcCandidates: img.srcCandidates,
+      imageMetadata: { width: img.width, height: img.height },
+    };
+  });
+}
+
+/** Synchronously retrieve cached client logos if available. */
+export function getCachedClientLogos() {
+  const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
+  if (!homePageFolderId) return null;
+  const kids = getCachedChildren(homePageFolderId);
+  if (!kids) return null;
+  const clientFolder = kids.find(
+    (f) => isFolder(f) && f.name.trim().toLowerCase() === "our client section"
+  );
+  if (!clientFolder) return null;
+  const images = getCachedChildren(clientFolder.id);
+  if (!images) return null;
+  return images.filter(isImage).map((f) => toImage(f));
 }
 
 /**
@@ -630,7 +769,7 @@ export function getCachedProjects(category) {
       if (DRIVE_CONFIG.cacheTtlMs && Date.now() - t > DRIVE_CONFIG.cacheTtlMs) {
         return undefined;
       }
-      return v; // Return cached categories
+      return v;
     }
   } catch {
     return undefined;
@@ -751,3 +890,26 @@ export async function teamMemberImages() {
     return [];
   }
 }
+
+/** Get images from Contact folder */
+export async function contactImages() {
+  if (!isDriveConfigured()) return [];
+  try {
+    const contactFolderId = DRIVE_CONFIG.directFolders?.contactPage;
+    if (!contactFolderId) return [];
+    return await folderImages(contactFolderId);
+  } catch (err) {
+    console.error("[drive] failed to load contact images:", err);
+    return [];
+  }
+}
+
+/** Synchronously retrieve cached contact page images if available. */
+export function getCachedContactImages() {
+  const contactFolderId = DRIVE_CONFIG.directFolders?.contactPage;
+  if (!contactFolderId) return null;
+  const images = getCachedChildren(contactFolderId);
+  if (!images) return null;
+  return images.filter(isImage).map((f) => toImage(f));
+}
+

@@ -79,11 +79,6 @@ export const DRIVE_CONFIG = {
 
   /** Direct folder IDs for pages that are shared separately (not under root). */
   directFolders: {
-    aboutUsPage: "1iILM2TxtqWsUYb4jQUNEYC6NVAHEk5yn",
-  },
-
-  /** Direct folder IDs for pages that are shared separately (not under root). */
-  directFolders: {
     homePage: "1nBJqqszzNytGqHX40V2F7EJluEwr1euq",
     aboutUsPage: "1iILM2TxtqWsUYb4jQUNEYC6NVAHEk5yn",
     awardsPage: "1EmWBHMSevumK1tKpggfrSfbm5gPCn5QI",

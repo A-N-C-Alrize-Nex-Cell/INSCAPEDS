@@ -54,7 +54,7 @@ export default {
         },
       },
       fontFamily: {
-        serif: ['"Computer Modern Serif"', "Georgia", "serif"],
+        serif: ["Inter", "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       letterSpacing: {

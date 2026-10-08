@@ -11,13 +11,27 @@
 import { useEffect, useState } from "react";
 import * as drive from "../lib/drive";
 
-/** Generic async runner with mount-safety. */
-export function useAsync(factory, deps) {
-  const [state, setState] = useState({ loading: true, error: null, data: null });
+export function useAsync(factory, deps, syncGetter) {
+  const serializedDeps = JSON.stringify(deps || []);
+  const [state, setState] = useState(() => {
+    let initialData = null;
+    if (typeof syncGetter === "function") {
+      try {
+        initialData = syncGetter();
+      } catch {
+        initialData = null;
+      }
+    }
+    return {
+      loading: initialData === null,
+      error: null,
+      data: initialData,
+    };
+  });
 
   useEffect(() => {
     let alive = true;
-    setState((s) => (s.loading ? s : { ...s, loading: true, error: null }));
+    setState((s) => (s.data !== null ? s : { ...s, loading: true, error: null }));
 
     Promise.resolve()
       .then(factory)
@@ -33,7 +47,7 @@ export function useAsync(factory, deps) {
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [serializedDeps]);
 
   return state;
 }
@@ -44,7 +58,8 @@ export function useAsync(factory, deps) {
 export function useSectionImages(pageKey, sectionName, opts) {
   return useAsync(
     () => drive.sectionImages(pageKey, sectionName, opts),
-    [pageKey, sectionName, JSON.stringify(opts || null)]
+    [pageKey, sectionName, JSON.stringify(opts || null)],
+    () => drive.getCachedSectionImages(pageKey, sectionName, opts)
   );
 }
 
@@ -91,7 +106,7 @@ export function useProjectsWithDetails(category) {
         ? await drive.allProjects()
         : await drive.categoryProjects(category);
     return Promise.all(
-      list.map(async (p) => ({ ...p, ...(await drive.projectDetails(p.folderId)) }))
+      list.map(async (p) => ({ ...p, ...(await drive.projectDetails(p.folderId, p.title)) }))
     );
   }, [category]);
 }
@@ -111,7 +126,7 @@ export function useProjectDetails(id) {
   return useAsync(async () => {
     const project = await drive.findProject(id);
     if (!project) return null;
-    const details = await drive.projectDetails(project.folderId);
+    const details = await drive.projectDetails(project.folderId, project.title);
     return { ...project, ...details };
   }, [id]);
 }
@@ -120,12 +135,32 @@ export function useProjectDetails(id) {
 
 /** Team member images from About/People folder with parsed names and designations. */
 export function useTeamMembers() {
-  return useAsync(() => drive.teamMemberImages(), []);
+  return useAsync(
+    () => drive.teamMemberImages(),
+    [],
+    () => drive.getCachedTeamMembers()
+  );
 }
 
 /* --- clients -------------------------------------------------------------- */
 
 /** Client logos from Home/Client folder. */
 export function useClientLogos() {
-  return useAsync(() => drive.clientLogos(), []);
+  return useAsync(
+    () => drive.clientLogos(),
+    [],
+    () => drive.getCachedClientLogos()
+  );
 }
+
+/* --- contact -------------------------------------------------------------- */
+
+/** Contact page images from Contact folder. */
+export function useContactImages() {
+  return useAsync(
+    () => drive.contactImages(),
+    [],
+    () => drive.getCachedContactImages()
+  );
+}
+

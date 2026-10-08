@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
@@ -13,6 +13,7 @@ import { processSteps, values, awards, team } from "../data/content";
 import { useSectionImages, useTeamMembers } from "../hooks/useDrive";
 import { isDriveConfigured } from "../lib/drive";
 import ResilientImage from "../components/ResilientImage";
+import LightboxModal from "../components/LightboxModal";
 
 const studioImage =
   "https://images.pexels.com/photos/6615107/pexels-photo-6615107.jpeg?auto=compress&cs=tinysrgb&w=1600";
@@ -96,7 +97,7 @@ export default function About() {
   // until its About/<section> Drive folder has an image in it.
   const driveReady = isDriveConfigured();
   const { data: introImages } = useSectionImages("about", "Hero Section");
-  const { data: founderImages } = useSectionImages("about", "Hero Section"); // Hero Section for both intro and founder
+  const { data: founderImages } = useSectionImages("about", "Second Section");
   const { data: studioImages } = useSectionImages("about", "Studio Values_Section");
   const { data: howWeWorkImages } = useSectionImages("about", "How We Work_Section");
   const { data: driveTeamMembers } = useTeamMembers();
@@ -115,9 +116,16 @@ export default function About() {
     ? driveTeamMembers
     : team;
 
-  console.log("[About] driveReady:", driveReady);
   console.log("[About] driveTeamMembers:", driveTeamMembers);
   console.log("[About] displayTeam:", displayTeam);
+
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [lightboxList, setLightboxList] = useState([]);
+
+  const openLightbox = (list, idx) => {
+    setLightboxList(list);
+    setLightboxIndex(idx);
+  };
 
   return (
     <motion.article
@@ -265,12 +273,20 @@ export default function About() {
           viewport={{ once: true, margin: "-80px" }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
         >
-          {displayTeam.map((member, i) => (
-            <motion.div
-              key={i}
-              variants={staggerItem}
-              className="group cursor-pointer relative aspect-square overflow-hidden bg-ink-100 rounded-sm"
-            >
+          {displayTeam.map((member, i) => {
+            const teamImagesList = displayTeam.map((m) => ({
+              src: m.src || m.image,
+              candidates: m.srcCandidates || (m.src || m.image ? [m.src || m.image] : []),
+              alt: m.name,
+            }));
+
+            return (
+              <motion.div
+                key={i}
+                variants={staggerItem}
+                onClick={() => openLightbox(teamImagesList, i)}
+                className="group cursor-pointer relative aspect-square overflow-hidden bg-ink-100 rounded-sm"
+              >
               {member.src ? (
                 <ResilientImage
                   src={member.src}
@@ -297,7 +313,8 @@ export default function About() {
                 </p>
               </div>
             </motion.div>
-          ))}
+          );
+        })}
         </motion.div>
       </section>
 
@@ -592,6 +609,15 @@ export default function About() {
           </Link>
         </motion.div>
       </section>
+
+      {/* LIGHTBOX MODAL */}
+      <LightboxModal
+        isOpen={lightboxIndex !== null}
+        images={lightboxList}
+        currentIndex={lightboxIndex ?? 0}
+        onClose={() => setLightboxIndex(null)}
+        onNavigate={(newIdx) => setLightboxIndex(newIdx)}
+      />
     </motion.article>
   );
 }

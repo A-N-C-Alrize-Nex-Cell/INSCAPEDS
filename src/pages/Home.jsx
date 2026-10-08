@@ -159,7 +159,7 @@ export default function Home() {
           >
             <div>
               <p className="section-label mb-4">Selected Work</p>
-              <h2 className="font-serif text-3xl md:text-5xl text-ink-800">
+              <h2 className="font-sans font-medium text-3xl md:text-5xl text-ink-800">
                 Featured Projects
               </h2>
             </div>
@@ -204,7 +204,7 @@ export default function Home() {
         >
           <div className="container-wide mb-8 md:mb-10">
             <div className="flex flex-col items-start">
-              <h2 className="font-serif text-3xl md:text-5xl text-ink-800 mb-3">
+              <h2 className="font-sans font-medium text-3xl md:text-5xl text-ink-800 mb-3">
                 Awards <span style={{ fontFamily: 'Arial, sans-serif', fontWeight: 'bold' }}>&</span> Publications
               </h2>
               <p className="font-sans text-base md:text-lg text-ink-600 max-w-full text-left mb-6">

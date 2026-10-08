@@ -28,3 +28,12 @@ build
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+
+# One-off staging area for content to upload into Drive — not part of the site
+drive-content-to-upload/
+
+# Source reference document + scratch text extraction — not a site asset
+*.pdf
+pdf_extracted_text.txt
