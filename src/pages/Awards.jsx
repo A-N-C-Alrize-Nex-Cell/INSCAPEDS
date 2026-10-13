@@ -210,7 +210,7 @@ export default function Awards() {
               <div
                 key={idx}
                 onClick={() => openLightbox(publications, idx % publications.length)}
-                className="aspect-square w-64 md:w-96 flex-shrink-0 overflow-hidden group border border-ink-100 cursor-pointer"
+                className="aspect-square w-64 md:w-96 flex-shrink-0 overflow-hidden group cursor-pointer"
               >
                 <ResilientImage
                   src={img.thumb || img.src}
