@@ -108,7 +108,7 @@
   }
 
   .animate-marquee-slow {
-    animation: marquee 90s linear infinite;
+    animation: marquee 150s linear infinite;
     animation-fill-mode: backwards;
     will-change: transform;
     transform: translateZ(0);

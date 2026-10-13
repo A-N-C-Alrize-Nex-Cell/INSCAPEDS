@@ -285,7 +285,7 @@ export default function Home() {
         >
           {clientImages.length > 0 ? (
             // Drive-based client logos - 4x loop repeat for continuous seamless scroll on mobile
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-80 hover:opacity-100 transition-all duration-500">
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow opacity-80 hover:opacity-100 transition-all duration-500">
               {[...Array(4)].map((_, loopIdx) => (
                 <div key={loopIdx} className="flex items-center gap-8 sm:gap-12 md:gap-16 pr-8 sm:pr-12 md:pr-16">
                   {clientImages.map((logo, idx) => (
@@ -303,7 +303,7 @@ export default function Home() {
             </div>
           ) : (
             // Fallback to hardcoded logos
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-80 transition-all duration-500">
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow opacity-80 transition-all duration-500">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex items-center gap-12 sm:gap-20 md:gap-32 pr-12 sm:pr-20 md:pr-32">
                   <div className="font-sans font-black text-xl sm:text-2xl md:text-3xl tracking-tighter uppercase cursor-default hover:text-ink-900 transition-colors duration-300">
