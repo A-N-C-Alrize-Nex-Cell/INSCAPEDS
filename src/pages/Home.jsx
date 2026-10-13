@@ -281,7 +281,7 @@ export default function Home() {
             <div className="container-wide">
               <div className="flex w-max gap-4 md:gap-6 hover:[animation-play-state:paused] animate-marquee">
                 {[...marqueePublications, ...marqueePublications, ...marqueePublications, ...marqueePublications].map((img, idx) => (
-                  <div key={idx} className="w-48 md:w-64 h-64 md:h-72 flex-shrink-0 overflow-hidden bg-sand-100">
+                  <div key={idx} className="w-48 md:w-64 h-64 md:h-72 flex-shrink-0 overflow-hidden">
                     <ResilientImage src={img.src} candidates={img.candidates} alt="Publication" className="w-full h-full object-contain grayscale hover:grayscale-0 transition-all duration-500 ease-smooth" loading="lazy" />
                   </div>
                 ))}
