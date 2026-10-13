@@ -47,6 +47,17 @@ export default function Footer() {
               <p>BA91, BA Block, Sector 1</p>
               <p>Bidhannagar, Kolkata - 700 064</p>
             </address>
+            <div className="mt-6">
+              <h5 className="text-xs uppercase tracking-widest text-sand-400 mb-3">Contact:</h5>
+              <div className="text-sm text-sand-200 space-y-2">
+                <p>
+                  <span className="text-sand-400">E-mail:</span> <a href="mailto:info.inscapeds@gmail.com" className="hover:text-sand-50 transition-colors">info.inscapeds@gmail.com</a>
+                </p>
+                <p>
+                  <span className="text-sand-400">Phone/Whatsapp:</span> <a href="tel:+916289859629" className="hover:text-sand-50 transition-colors">+91 62898 59629</a>
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="md:col-span-3">
