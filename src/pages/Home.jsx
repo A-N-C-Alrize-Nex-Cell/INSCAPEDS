@@ -163,9 +163,8 @@ export default function Home() {
             className="flex items-end justify-between mb-0 md:mb-2"
           >
             <div>
-              <p className="section-label mb-4">Selected Work</p>
               <h2 className="font-sans font-medium text-3xl md:text-5xl text-ink-800">
-                Featured Projects
+                Spaces we've shaped
               </h2>
             </div>
             <Link
