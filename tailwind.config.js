@@ -70,7 +70,7 @@ export default {
         },
       },
       animation: {
-        marquee: "marquee 40s linear infinite",
+        marquee: "marquee 200s linear infinite",
       },
     },
   },

@@ -4,7 +4,7 @@ import { useLenis } from '@studio-freight/react-lenis';
 import topImage from '../assets/topimage.png';
 import sketchMayapur from '../assets/sketchmayapur.png';
 import mayapur from '../assets/mayapur.jpeg';
-import { useSectionImages } from '../hooks/useDrive';
+import { useCollageImages } from '../hooks/useDrive';
 import { isDriveConfigured } from '../lib/drive';
 import ResilientImage from '../components/ResilientImage';
 
@@ -20,7 +20,7 @@ export default function Home_2ndSection() {
   const [isVisible, setIsVisible] = useState(false);
 
   const driveReady = isDriveConfigured();
-  const { data: collageImages } = useSectionImages('home', 'Collage Section(2nd Section)');
+  const { data: collageImages } = useCollageImages();
   // 8 slots laid out as a staggered cross: 1 (left) + 2 + 2 (center, tallest) + 2 + 1 (right)
   const collageSlots = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
     const img = driveReady && collageImages?.[i];
