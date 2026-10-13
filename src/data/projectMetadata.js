@@ -111,7 +111,7 @@ export const projectRegistry = [
     status: "Completed 2025",
     area: "2.2 Acres",
     category: "Residential",
-    description: `In a design that seeks greater integration between the use of the area and the created garden, kids play area that integrates with the seasons in a way of making the landscaping even richer.`
+    description: `In a design that seeks greater integration between the use of the area and the created garden, kids play area that integrates with the seasons in a way of making the landscaping even richer.\n\nThe design proposes to keep the tree to be intact and in close interaction with the users by planning activities around it. In conjunction to the tree, the spaces designed are spread not only to the podium but also on the ground as well.\n\nThe tree deck serves as an area of respite for the residents bringing it closer to the legacy of the place. The kids play area has been design to integrate the various activities in the lap of nature, the tree acting as the epitome.`
   },
   {
     keywords: ["dtc", "rajarhat"],
