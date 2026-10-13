@@ -125,10 +125,10 @@ export default function Home() {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="section-label text-sand-200 mb-6"
           >
-            Architecture Studio — Est. 2009
+            Landscape Design Studio — Est. 2014
           </motion.p>
           <h1 className="font-serif text-sand-50 text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05] max-w-4xl">
-            <AnimatedText text="Designing spaces that reveal themselves" delay={0.3} />
+            <AnimatedText text="Creating landscapes that engage the senses, enrich everyday life, and give meaning to place." delay={0.3} />
           </h1>
           <motion.div
             initial={{ opacity: 0 }}

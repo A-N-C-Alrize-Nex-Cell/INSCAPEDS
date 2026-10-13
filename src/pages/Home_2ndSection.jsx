@@ -92,28 +92,11 @@ export default function Home_2ndSection() {
 
   return (
     <section 
-      className="relative w-full min-h-screen flex flex-col justify-center py-10 bg-white px-4 md:px-6 lg:px-10 box-border overflow-hidden" 
+      className="relative w-full flex flex-col justify-center py-20 md:py-28 bg-white px-4 md:px-6 lg:px-10 box-border overflow-hidden"
       ref={sectionRef}
     >
-      {/* Main Large Image */}
-      <div 
-        className={`w-full md:w-[70vw] lg:w-[50vw] max-w-[900px] h-[45vh] mx-auto transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] flex items-end justify-center ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-        }`}
-      >
-        <div className="relative w-full h-full flex items-end justify-center group overflow-hidden">
-          <img
-            src={topImage}
-            alt="Luxurious architectural residence surrounded by nature"
-            loading="lazy"
-            decoding="async"
-            className="w-auto h-full max-h-full object-contain transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
-          />
-        </div>
-      </div>
-
       {/* Bottom: Staggered Photo Collage + Cross Text */}
-      <div className="relative pb-[20px] md:pb-[40px] mt-10 md:mt-16 flex flex-col items-center">
+      <div className="relative pb-[20px] md:pb-[40px] flex flex-col items-center">
         {/* Mobile / tablet: simple 2-col masonry of all 8 photos */}
         <div className="grid grid-cols-2 md:hidden gap-3 w-full max-w-[520px] mx-auto z-10">
           {collageSlots.map((slot, i) => (
