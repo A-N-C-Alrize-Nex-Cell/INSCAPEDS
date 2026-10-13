@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MapPin, Calendar, Ruler, ArrowUpRight } from "lucide-react";
 import {
@@ -16,7 +16,11 @@ import { isDriveConfigured } from "../lib/drive";
 import ResilientImage from "../components/ResilientImage";
 
 export default function Projects() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  // Active filter lives in the URL (?category=…) rather than plain state so
+  // browser back/forward (e.g. after opening a project and returning) lands
+  // back on the same filtered tab instead of resetting to "All".
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeCategory = searchParams.get("category") || "All";
   const [visibleCount, setVisibleCount] = useState(9);
 
   // Live Drive data (only trusted once VITE_DRIVE_API_KEY / ROOT_FOLDER_ID are set —
@@ -57,7 +61,7 @@ export default function Projects() {
   const isLoading = driveReady && driveLoading;
 
   const handleFilter = (cat) => {
-    setActiveCategory(cat);
+    setSearchParams(cat === "All" ? {} : { category: cat });
     setVisibleCount(9);
   };
 
