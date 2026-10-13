@@ -363,7 +363,8 @@ export const projectRegistry = [
     location: "DURGAPUR, WEST BENGAL",
     status: "Completed 2022",
     area: "1.5 Acres",
-    category: "Educational"
+    category: "Educational",
+    description: `A State of the art school in Durgapur deserves a very practical approach to the landscape keeping in view all the requirements of the users and teachers.`
   },
   {
     keywords: ["techno india", "techno"],
@@ -371,7 +372,8 @@ export const projectRegistry = [
     location: "SILIGURI, WEST BENGAL",
     status: "Completed 2025",
     area: "10.2 Acres",
-    category: "Educational"
+    category: "Educational",
+    description: `Techno India World School, Siliguri features a thoughtfully designed landscape that fosters learning and play. Curved pathways wind through lush lawns, vibrant flower beds, and strategically placed native trees offering shade. Play areas and open lawns provide space for recreation and gatherings. Subtle garden seating encourages outdoor study and relaxation. The harmonious blend of greenery and functional design creates an inspiring educational oasis.`
   },
   {
     keywords: ["seamford school", "seamford"],
@@ -379,7 +381,8 @@ export const projectRegistry = [
     location: "HABRA, WEST BENGAL",
     status: "Completed 2019",
     area: "1.3 Acres",
-    category: "Educational"
+    category: "Educational",
+    description: `Seamford School, Habra, West Bengal features a student-friendly landscape that encourages both learning and leisure. Green open lawns, shaded pathways, and playful garden zones foster a welcoming environment. Native plantations enhance biodiversity and provide natural shade. The landscape supports educational interaction, physical activity, and mental well-being, blending functionality with nature to create a vibrant and inspiring school campus.`
   },
   {
     keywords: ["mp govt school", "mp govt"],
@@ -387,7 +390,8 @@ export const projectRegistry = [
     location: "MADHYAPRADESH, INDIA",
     status: "Construction Phase",
     area: "4.0 Acres",
-    category: "Educational"
+    category: "Educational",
+    description: `The school landscape in Madhya Pradesh is envisioned as a cheerful and interactive environment designed especially for children. At its core lies an energetic play zone featuring vibrant flooring and versatile play structures that inspire both learning and recreation. With safe, child-friendly surfaces, engaging visuals, and thoughtfully planned activity areas, the space nurtures creativity, movement, and social interaction—offering a dynamic outdoor setting where young learners can explore, play, and thrive.`
   },
 
   // BUNGALOW LANDSCAPE
