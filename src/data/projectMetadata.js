@@ -84,7 +84,7 @@ export const projectRegistry = [
     status: "ONGOING",
     area: "3.3 Acres",
     category: "Residential",
-    description: `In a design that seeks greater integration between the use of the area and the created garden, that integrates with the seasons in a way of making the landscaping even richer.\n\nThis iconic gate was designed to inspire a sense of awe from by goers and the residents alike. To complete the look, a water feature was introduced with the gate complex with proudly displays the name of the site, 'Seasonss.' The water feature cascades down from the upper level as a welcome element creating a sense of discovery and auditory, also representing spring.`
+    description: `In a design that seeks greater integration between the use of the area and the created garden, that integrates with the seasons in a way of making the landscaping even richer.\n\nThis iconic gate was designed to inspire a sense of awe from by goers and the residents alike. To complete the look, a water feature was introduced with the gate complex with proudly displays the name of the site, 'Seasonss.' The water feature cascades down from the upper level as a welcome element creating a sense of discovery and auditory, also representing spring. A water body was existing at the centre of the site. The buildings were designed keeping it at the apex. The pond was extended and a bridge was introduced so that the flow of circulation through it became a distinct experience itself while crossed.`
   },
   {
     keywords: ["merlin 4th", "mahisbathan"],
