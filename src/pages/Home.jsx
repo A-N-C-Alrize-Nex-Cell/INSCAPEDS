@@ -118,7 +118,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/40" />
         </div>
 
-        <div className="relative h-full container-wide flex flex-col justify-end pb-24 md:pb-32">
+        <div className="relative h-full container-wide flex flex-col justify-end pb-36 md:pb-44">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
