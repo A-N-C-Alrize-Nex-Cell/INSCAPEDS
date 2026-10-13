@@ -85,7 +85,7 @@ export function AnimatedText({ text, className = "", delay = 0 }) {
       transition={{ delayChildren: delay }}
     >
       {words.map((word, i) => (
-        <span key={i} className="inline-block overflow-hidden align-top">
+        <span key={i} className="inline-block overflow-hidden align-top pb-[0.2em] -mb-[0.2em]">
           <motion.span className="inline-block" variants={letterItem}>
             {word}
           </motion.span>
