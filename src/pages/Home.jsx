@@ -127,7 +127,7 @@ export default function Home() {
           >
             Landscape Design Studio — Est. 2014
           </motion.p>
-          <h1 className="font-serif text-sand-50 text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.15] max-w-sm sm:max-w-lg md:max-w-5xl lg:max-w-6xl xl:max-w-7xl">
+          <h1 className="font-serif text-sand-50 text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl leading-[1.15] max-w-sm sm:max-w-lg md:max-w-5xl lg:max-w-6xl xl:max-w-7xl">
             <AnimatedText text="Creating Landscapes That Engage The Senses, Enrich Everyday Life, And Give Meaning To Place." delay={0.3} />
           </h1>
         </div>
