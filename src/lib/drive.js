@@ -39,7 +39,14 @@ function cacheGet(key) {
   try {
     const raw = store.getItem(key);
     if (!raw) return null;
-    const { v } = JSON.parse(raw);
+    const { t, v } = JSON.parse(raw);
+    // Without this, a cached listing never expires on its own (localStorage
+    // persists across reloads) — a refresh after editing Drive would keep
+    // showing stale content indefinitely instead of refetching within
+    // cacheTtlMs as the config intends.
+    if (DRIVE_CONFIG.cacheTtlMs && Date.now() - t > DRIVE_CONFIG.cacheTtlMs) {
+      return null;
+    }
     return v || null;
   } catch {
     return null;
