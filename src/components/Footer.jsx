@@ -80,7 +80,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/company/inscapedesign-studio/"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="LinkedIn"
                 className="text-sand-300 hover:text-sand-50 transition-colors"
               >
