@@ -4,6 +4,13 @@ import { useLenis } from '@studio-freight/react-lenis';
 import topImage from '../assets/topimage.png';
 import sketchMayapur from '../assets/sketchmayapur.png';
 import mayapur from '../assets/mayapur.jpeg';
+import { useSectionImages } from '../hooks/useDrive';
+import { isDriveConfigured } from '../lib/drive';
+import ResilientImage from '../components/ResilientImage';
+
+// Fallback photos used per collage slot until the Drive folder has its own —
+// cycled through so every slot always shows something.
+const COLLAGE_FALLBACKS = [topImage, sketchMayapur, mayapur];
 
 export default function Home_2ndSection() {
   const sectionRef = useRef(null);
@@ -11,6 +18,17 @@ export default function Home_2ndSection() {
   const image4Ref = useRef(null);
   const crossTextRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+
+  const driveReady = isDriveConfigured();
+  const { data: collageImages } = useSectionImages('home', 'Collage Section(2nd Section)');
+  // 8 slots laid out as a staggered cross: 1 (left) + 2 + 2 (center, tallest) + 2 + 1 (right)
+  const collageSlots = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+    const img = driveReady && collageImages?.[i];
+    return {
+      src: img?.src || COLLAGE_FALLBACKS[i % COLLAGE_FALLBACKS.length],
+      candidates: img?.srcCandidates,
+    };
+  });
 
   const bounds = useRef({ top: 0, height: 0 });
 
@@ -94,42 +112,101 @@ export default function Home_2ndSection() {
         </div>
       </div>
 
-      {/* Bottom Grid: Two Images + Cross Text */}
-      <div className="relative pb-[20px] md:pb-[40px] mt-2 flex flex-col items-center">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-4 md:gap-5 w-full md:w-[65%] max-w-[850px] mx-auto z-10">
-          {/* Image 3 — left, narrower */}
-          <div 
-            className={`overflow-hidden will-change-transform transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[60px]'
-            }`} 
-            ref={image3Ref}
-          >
-            <div className="aspect-[16/9] md:aspect-[2.03/1] border-2 border-[#e0e0e0] box-border relative w-full overflow-hidden group">
-              <img
-                src={sketchMayapur}
-                alt="Sketch of Mayapur design"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
+      {/* Bottom: Staggered Photo Collage + Cross Text */}
+      <div className="relative pb-[20px] md:pb-[40px] mt-10 md:mt-16 flex flex-col items-center">
+        {/* Mobile / tablet: simple 2-col masonry of all 8 photos */}
+        <div className="grid grid-cols-2 md:hidden gap-3 w-full max-w-[520px] mx-auto z-10">
+          {collageSlots.map((slot, i) => (
+            <div
+              key={i}
+              className={`overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[40px]'
+              } ${i % 3 === 0 ? 'aspect-[3/4]' : i % 3 === 1 ? 'aspect-square' : 'aspect-[4/3]'}`}
+              style={{ transitionDelay: `${150 + i * 80}ms` }}
+            >
+              <ResilientImage
+                src={slot.src}
+                candidates={slot.candidates}
+                alt="Inscape design detail"
+                className="w-full h-full object-cover"
               />
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: 5-column staggered cross, center tallest */}
+        <div className="hidden md:flex items-start justify-center gap-4 lg:gap-5 w-full max-w-[1100px] mx-auto z-10">
+          {/* Col 1 */}
+          <div
+            className={`flex-1 mt-24 overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-100 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[60px]'
+            }`}
+          >
+            <div className="aspect-[3/4] overflow-hidden group">
+              <ResilientImage src={collageSlots[0].src} candidates={collageSlots[0].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
             </div>
           </div>
 
-          {/* Image 4 — right, wider */}
-          <div 
-            className={`overflow-hidden will-change-transform transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-[350ms] ${
+          {/* Col 2 */}
+          <div
+            className={`flex-1 mt-8 flex flex-col gap-4 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-200 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[60px]'
-            }`} 
-            ref={image4Ref}
+            }`}
           >
-            <div className="aspect-[16/9] md:aspect-[1.94/1] relative w-full overflow-hidden group">
-              <img
-                src={mayapur}
-                alt="Mayapur residence exterior"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
-              />
+            <div className="aspect-[4/5] overflow-hidden group">
+              <ResilientImage src={collageSlots[1].src} candidates={collageSlots[1].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
+            </div>
+            <div className="aspect-[3/4] overflow-hidden group">
+              <ResilientImage src={collageSlots[2].src} candidates={collageSlots[2].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
+            </div>
+          </div>
+
+          {/* Col 3 — center, tallest */}
+          <div className="flex-[1.15] flex flex-col gap-4">
+            <div
+              className={`overflow-hidden will-change-transform transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-200 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[60px]'
+              }`}
+              ref={image3Ref}
+            >
+              <div className="aspect-[16/10] border-2 border-[#e0e0e0] box-border overflow-hidden group">
+                <ResilientImage src={collageSlots[3].src} candidates={collageSlots[3].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
+              </div>
+            </div>
+            <div
+              className={`overflow-hidden will-change-transform transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-[350ms] ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[60px]'
+              }`}
+              ref={image4Ref}
+            >
+              <div className="aspect-[2/3] overflow-hidden group">
+                <ResilientImage src={collageSlots[4].src} candidates={collageSlots[4].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Col 4 */}
+          <div
+            className={`flex-1 mt-8 flex flex-col gap-4 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-[350ms] ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[60px]'
+            }`}
+          >
+            <div className="aspect-[3/4] overflow-hidden group">
+              <ResilientImage src={collageSlots[5].src} candidates={collageSlots[5].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
+            </div>
+            <div className="aspect-[4/3] overflow-hidden group">
+              <ResilientImage src={collageSlots[6].src} candidates={collageSlots[6].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
+            </div>
+          </div>
+
+          {/* Col 5 */}
+          <div
+            className={`flex-1 mt-24 overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] delay-500 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[60px]'
+            }`}
+          >
+            <div className="aspect-[3/4] overflow-hidden group">
+              <ResilientImage src={collageSlots[7].src} candidates={collageSlots[7].candidates} alt="Inscape design detail" className="w-full h-full object-cover transition-transform duration-800 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]" />
             </div>
           </div>
         </div>
