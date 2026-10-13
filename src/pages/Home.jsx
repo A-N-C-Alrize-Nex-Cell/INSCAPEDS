@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowDown, ArrowUpRight, Infinity } from "lucide-react";
+import { ArrowUpRight, Infinity } from "lucide-react";
 import {
   fadeUp,
   staggerContainer,
@@ -130,20 +130,6 @@ export default function Home() {
           <h1 className="font-serif text-sand-50 text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.15] max-w-xs sm:max-w-md md:max-w-4xl lg:max-w-5xl xl:max-w-6xl">
             <AnimatedText text="Creating landscapes that engage the senses, enrich everyday life, and give meaning to place." delay={0.3} />
           </h1>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4, duration: 0.8 }}
-            className="mt-12 flex items-center gap-3 text-sand-200"
-          >
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            >
-              <ArrowDown size={20} />
-            </motion.div>
-            <span className="text-xs uppercase tracking-ultra-wide">Scroll</span>
-          </motion.div>
         </div>
       </section>
 
