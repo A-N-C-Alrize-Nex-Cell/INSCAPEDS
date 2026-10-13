@@ -117,9 +117,36 @@ export default function Home() {
       : newFeaturedProjects;
   })();
 
-  const marqueePublications = driveReady && drivePublications?.length
-    ? drivePublications.map((img) => ({ src: img.thumb, candidates: img.thumbCandidates }))
-    : publicationImages.map((src) => ({ src, candidates: [src] }));
+  // Interleave Publication (P_n) and Award (A_n) images P_1, A_1, P_2, A_2, …
+  // instead of Drive's plain alphabetical order (which would group all A_*
+  // before all P_*).
+  const marqueePublications = (() => {
+    if (!driveReady || !drivePublications?.length) {
+      return publicationImages.map((src) => ({ src, candidates: [src] }));
+    }
+    const parse = (name) => {
+      const m = String(name || "").match(/^([pa])_?(\d+)/i);
+      return m ? { type: m[1].toUpperCase(), num: parseInt(m[2], 10) } : null;
+    };
+    const pubs = [];
+    const awards = [];
+    const rest = [];
+    for (const img of drivePublications) {
+      const parsed = parse(img.name);
+      if (parsed?.type === "P") pubs.push({ ...parsed, img });
+      else if (parsed?.type === "A") awards.push({ ...parsed, img });
+      else rest.push(img);
+    }
+    pubs.sort((a, b) => a.num - b.num);
+    awards.sort((a, b) => a.num - b.num);
+    const interleaved = [];
+    const max = Math.max(pubs.length, awards.length);
+    for (let i = 0; i < max; i++) {
+      if (pubs[i]) interleaved.push(pubs[i].img);
+      if (awards[i]) interleaved.push(awards[i].img);
+    }
+    return [...interleaved, ...rest].map((img) => ({ src: img.thumb, candidates: img.thumbCandidates }));
+  })();
 
   const clientImages = driveReady && driveClientLogos?.length ? driveClientLogos : [];
   
