@@ -84,15 +84,14 @@ export default function Home() {
           location: match?.location || match?.category || "",
           year: match?.year,
           category: match?.category,
-          // Default state: the curated sketch/drawing from Selected Work
-          // (the heavy grayscale/contrast/multiply CSS treatment is built
-          // for line-art, not a photo). Hover state: the real photo from
-          // the matched project's own gallery — using the same Selected
-          // Work image for both left the hover reveal showing nothing new.
-          image: slot.cover?.thumb || match?.cover?.thumb || "",
-          imageCandidates: slot.cover?.thumbCandidates || match?.cover?.thumbCandidates,
-          hoverImage: hover?.thumb || slot.cover?.thumb || "",
-          hoverImageCandidates: hover?.thumbCandidates || slot.cover?.thumbCandidates,
+          // Each Selected Work subfolder carries both states directly: the
+          // "Monochrome"-named file for the default sketch-styled view, and
+          // the plain one for the hover reveal. Falls back to the matched
+          // project's own gallery only if a subfolder is missing one.
+          image: slot.image?.thumb || match?.cover?.thumb || "",
+          imageCandidates: slot.image?.thumbCandidates || match?.cover?.thumbCandidates,
+          hoverImage: slot.hoverImage?.thumb || hover?.thumb || "",
+          hoverImageCandidates: slot.hoverImage?.thumbCandidates || hover?.thumbCandidates,
         };
       }).filter((p) => p.id); // drop slots that couldn't be matched to a real project (would otherwise link nowhere)
     }

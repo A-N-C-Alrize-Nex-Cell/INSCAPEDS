@@ -418,10 +418,12 @@ export async function sectionImages(pageKey, sectionName, opts) {
 /**
  * A section whose own children are project subfolders rather than flat
  * images — e.g. Home/"Selected Work(3rd Section)"/"01_HSB Joypur"/*.jpg.
- * Returns one cover image per subfolder, ordered by numeric prefix, each
- * tagged with the subfolder's label (number prefix stripped) so callers can
- * match it back to a real project by title.
- * @returns {Promise<Array<{ label: string, cover: DriveImage | null }>>}
+ * Each subfolder holds exactly two images: one with "Monochrome" in its
+ * filename (the stylized default state) and one without (the real photo,
+ * for the hover reveal). Returns one pair per subfolder, ordered by
+ * numeric prefix, each tagged with the subfolder's label (number prefix
+ * stripped) so callers can match it back to a real project by title.
+ * @returns {Promise<Array<{ label: string, image: DriveImage | null, hoverImage: DriveImage | null }>>}
  */
 export async function sectionProjectCovers(pageKey, sectionName, opts) {
   const pid = await pageFolderId(pageKey);
@@ -449,7 +451,12 @@ export async function sectionProjectCovers(pageKey, sectionName, opts) {
   return Promise.all(
     ordered.map(async ({ folder, label }) => {
       const images = await folderImages(folder.id, opts);
-      return { label, cover: pickCover(images) };
+      const monochrome = images.find((img) => /monochrome/i.test(img.name));
+      const coverImg = monochrome || pickCover(images);
+      // Whichever image isn't the cover, so hover always shows something
+      // different even when neither file is named "Monochrome".
+      const real = images.find((img) => img !== coverImg) || coverImg;
+      return { label, image: coverImg, hoverImage: real };
     })
   );
 }
