@@ -156,7 +156,7 @@ export default function Home_2ndSection() {
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
               }`}
             >
-              to turn the opportunity of a place into a life experience like no other.
+              At Inscape Design Studio, we are deeply committed to creating green, sustainable landscapes that celebrate nature. Our designs prioritize native planting, ecological balance, and climate resilience, ensuring every space we craft contributes positively to the environment while enriching human experience and fostering a deep connection with the natural world.
             </p>
           </div>
         </div>
