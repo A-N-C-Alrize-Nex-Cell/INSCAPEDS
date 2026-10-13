@@ -210,13 +210,13 @@ export default function Awards() {
               <div
                 key={idx}
                 onClick={() => openLightbox(publications, idx % publications.length)}
-                className="aspect-square w-64 md:w-96 flex-shrink-0 bg-sand-200 overflow-hidden group border border-ink-100 cursor-pointer"
+                className="aspect-square w-64 md:w-96 flex-shrink-0 overflow-hidden group border border-ink-100 cursor-pointer"
               >
                 <ResilientImage
                   src={img.thumb || img.src}
                   candidates={img.thumbCandidates || img.candidates}
                   alt={img.alt || "Featured publication"}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
               </div>
