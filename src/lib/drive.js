@@ -416,6 +416,45 @@ export async function sectionImages(pageKey, sectionName, opts) {
 }
 
 /**
+ * A section whose own children are project subfolders rather than flat
+ * images — e.g. Home/"Selected Work(3rd Section)"/"01_HSB Joypur"/*.jpg.
+ * Returns one cover image per subfolder, ordered by numeric prefix, each
+ * tagged with the subfolder's label (number prefix stripped) so callers can
+ * match it back to a real project by title.
+ * @returns {Promise<Array<{ label: string, cover: DriveImage | null }>>}
+ */
+export async function sectionProjectCovers(pageKey, sectionName, opts) {
+  const pid = await pageFolderId(pageKey);
+  if (!pid) return [];
+  const names = Array.isArray(sectionName) ? sectionName : [sectionName];
+  const kids = await listChildren(pid);
+
+  let sectionFolder = null;
+  for (const name of names) {
+    const target = String(name).trim().toLowerCase();
+    sectionFolder = kids.find(
+      (f) =>
+        isFolder(f) &&
+        (f.name.trim().toLowerCase() === target || parseOrdered(f.name).label.toLowerCase() === target)
+    );
+    if (sectionFolder) break;
+  }
+  if (!sectionFolder) return [];
+
+  const projectFolders = (await listChildren(sectionFolder.id)).filter(isFolder);
+  const ordered = projectFolders
+    .map((f) => ({ folder: f, ...parseOrdered(f.name) }))
+    .sort((a, b) => a.order - b.order);
+
+  return Promise.all(
+    ordered.map(async ({ folder, label }) => {
+      const images = await folderImages(folder.id, opts);
+      return { label, cover: pickCover(images) };
+    })
+  );
+}
+
+/**
  * Every section subfolder of a page, ordered by numeric prefix.
  * @returns {Promise<Array<{ name: string, key: string, order: number, images: DriveImage[] }>>}
  */
@@ -544,12 +583,71 @@ export async function findProject(id) {
   return all.find((p) => p.id === id) || null;
 }
 
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+const significantWords = (s) => String(s || "").toUpperCase().match(/[A-Z]{3,}/g) || [];
+
+/**
+ * Match a free-text label (e.g. a curated-section subfolder name like
+ * "Sonku Park") against a list of real projects by their `title`, tolerant
+ * of typos (word-level edit distance) — real content is hand-typed in two
+ * different places and rarely spelled identically. Exact shared words score
+ * higher than fuzzy ones; returns null if nothing scores above zero.
+ */
+export function matchProjectByLabel(projects, label) {
+  const labelWords = significantWords(label);
+  let best = null;
+  let bestScore = 0;
+  for (const p of projects) {
+    const titleWords = significantWords(p.title);
+    const usedTitleWords = new Set();
+    let score = 0;
+    for (const lw of labelWords) {
+      if (titleWords.includes(lw)) {
+        score += 2;
+        usedTitleWords.add(lw);
+        continue;
+      }
+      let nearest = null;
+      let nearestDist = Infinity;
+      for (const tw of titleWords) {
+        if (usedTitleWords.has(tw)) continue;
+        const d = levenshtein(lw, tw);
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearest = tw;
+        }
+      }
+      const threshold = Math.max(2, Math.floor(Math.max(lw.length, nearest?.length || 0) * 0.3));
+      if (nearest && nearestDist <= threshold) {
+        score += 1;
+        usedTitleWords.add(nearest);
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = p;
+    }
+  }
+  return bestScore > 0 ? best : null;
+}
+
 /**
  * Cover-picking convention for a project folder: a file literally named
  * "DP" (any extension — "DP.jpg", "dp.png", …, case-insensitive) is used as
  * the cover when present; otherwise the first image in natural name order.
  */
-function pickCover(images) {
+export function pickCover(images) {
   // `images` is already an array of DriveImage objects (from toImage()) — every
   // element IS an image by construction (the mimeType filtering already
   // happened upstream, and toImage() doesn't carry mimeType forward), so no
@@ -752,6 +850,33 @@ export function getCachedClientLogos() {
   return images.filter(isImage).map((f) => toImage(f));
 }
 
+/** Synchronously retrieve cached collage images if available. */
+export function getCachedCollageImages() {
+  const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
+  if (!homePageFolderId) return null;
+  const kids = getCachedChildren(homePageFolderId);
+  if (!kids) return null;
+  const possibleNames = ["Collage Section", "Collage Section(2nd Sec...", "Collage", "2nd Section"];
+  let collageFolder = null;
+  for (const name of possibleNames) {
+    collageFolder = kids.find(
+      (f) => isFolder(f) && f.name.trim().toLowerCase() === name.toLowerCase()
+    );
+    if (collageFolder) break;
+  }
+  if (!collageFolder) return null;
+  let images = getCachedChildren(collageFolder.id);
+  if (!images) return null;
+  images = images.filter(isImage).map((f) => toImage(f));
+  // Sort by numeric filename
+  images.sort((a, b) => {
+    const aNum = parseInt(a.name.match(/^\d+/)?.[0] || "999");
+    const bNum = parseInt(b.name.match(/^\d+/)?.[0] || "999");
+    return aNum - bNum;
+  });
+  return images;
+}
+
 /**
  * Get cached data synchronously if available, otherwise undefined.
  * Used for optimistic rendering of cached project data.
@@ -806,7 +931,10 @@ export function parseTeamFileName(filename) {
 
 /** Get client logos from Home Page/Our Client Section folder */
 export async function clientLogos() {
-  if (!isDriveConfigured()) return [];
+  if (!isDriveConfigured()) {
+    console.warn("[drive] Drive not configured for clientLogos");
+    return [];
+  }
   
   try {
     console.log("[drive] Starting to fetch client logos...");
@@ -820,21 +948,102 @@ export async function clientLogos() {
     
     console.log("[drive] Using Home Page folder ID:", homePageFolderId);
     
-    // Get Our Client Section subfolder
-    const clientFolder = await findChildFolder(homePageFolderId, "Our Client Section");
-    console.log("[drive] Our Client Section folder:", clientFolder);
+    // Get Our Client Section subfolder - try multiple possible names
+    const possibleNames = ["Our Client Section", "Our Clients", "Clients", "Client Logos"];
+    let clientFolder = null;
+    
+    for (const name of possibleNames) {
+      clientFolder = await findChildFolder(homePageFolderId, name);
+      if (clientFolder) {
+        console.log(`[drive] Found client folder with name: "${name}"`, clientFolder);
+        break;
+      }
+    }
+    
     if (!clientFolder) {
-      console.error("[drive] Our Client Section folder not found");
+      console.error("[drive] Client folder not found with any of the expected names:", possibleNames);
       return [];
     }
     
     // Get all image files in Client folder
-    const images = await folderImages(clientFolder.id);
-    console.log("[drive] found", images.length, "client logos in Our Client Section", images);
+    const images = await folderImages(clientFolder.id, { width: DRIVE_CONFIG.thumbWidth });
+    console.log("[drive] found", images.length, "client logos in", clientFolder.name, images);
     
     return images;
   } catch (err) {
     console.error("[drive] failed to load client logos:", err);
+    return [];
+  }
+}
+
+/** Get collage section images from Home Page/Collage Section folder, sorted by numeric filename */
+export async function collageImages() {
+  if (!isDriveConfigured()) {
+    console.warn("[drive] Drive not configured for collageImages");
+    return [];
+  }
+  
+  try {
+    console.log("[drive] Starting to fetch collage images...");
+    
+    // Use direct folder ID for Home Page
+    const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
+    if (!homePageFolderId) {
+      console.error("[drive] Home Page folder ID not configured in DRIVE_CONFIG");
+      return [];
+    }
+    
+    console.log("[drive] Using Home Page folder ID:", homePageFolderId);
+    
+    // Get Collage Section subfolder - try multiple possible names
+    const possibleNames = ["Collage Section", "Collage Section(2nd Sec...", "Collage", "2nd Section"];
+    let collageFolder = null;
+    
+    // First, list all children to see what folders exist
+    const homeChildren = await listChildren(homePageFolderId);
+    console.log("[drive] Home Page children:", homeChildren.filter(isFolder).map(f => f.name));
+    
+    // Try exact name matches first
+    for (const name of possibleNames) {
+      collageFolder = homeChildren.find(
+        (f) => isFolder(f) && f.name.trim().toLowerCase() === name.toLowerCase()
+      );
+      if (collageFolder) {
+        console.log(`[drive] Found collage folder with exact name: "${name}"`);
+        break;
+      }
+    }
+    
+    // If not found, try partial match - any folder containing "collage"
+    if (!collageFolder) {
+      collageFolder = homeChildren.find(
+        (f) => isFolder(f) && f.name.toLowerCase().includes("collage")
+      );
+      if (collageFolder) {
+        console.log(`[drive] Found collage folder by partial match: "${collageFolder.name}"`);
+      }
+    }
+    
+    if (!collageFolder) {
+      console.error("[drive] Collage folder not found. Available folders:", homeChildren.filter(isFolder).map(f => f.name));
+      return [];
+    }
+    
+    // Get all image files in Collage folder
+    let images = await folderImages(collageFolder.id, { width: DRIVE_CONFIG.thumbWidth });
+    
+    // Sort images by numeric filename prefix (01.jpg, 03.jpg, 04.jpg, etc.)
+    images.sort((a, b) => {
+      const aNum = parseInt(a.name.match(/^\d+/)?.[0] || "999");
+      const bNum = parseInt(b.name.match(/^\d+/)?.[0] || "999");
+      return aNum - bNum;
+    });
+    
+    console.log("[drive] found", images.length, "collage images in", collageFolder.name, "sorted order:", images.map(i => i.name));
+    
+    return images;
+  } catch (err) {
+    console.error("[drive] failed to load collage images:", err);
     return [];
   }
 }

@@ -63,6 +63,14 @@ export function useSectionImages(pageKey, sectionName, opts) {
   );
 }
 
+/** One cover image per project subfolder inside a section, ordered by numeric prefix. */
+export function useSectionProjectCovers(pageKey, sectionName, opts) {
+  return useAsync(
+    () => drive.sectionProjectCovers(pageKey, sectionName, opts),
+    [pageKey, sectionName, JSON.stringify(opts || null)]
+  );
+}
+
 /** All section subfolders of a page, ordered by numeric prefix. */
 export function usePageSections(pageKey, opts) {
   return useAsync(
@@ -146,10 +154,21 @@ export function useTeamMembers() {
 
 /** Client logos from Home/Client folder. */
 export function useClientLogos() {
-  return useAsync(
+  const state = useAsync(
     () => drive.clientLogos(),
     [],
     () => drive.getCachedClientLogos()
+  );
+  console.log("[useClientLogos] returning state:", state);
+  return state;
+}
+
+/** Collage section images from Home/Collage Section folder, sorted by numeric filename. */
+export function useCollageImages() {
+  return useAsync(
+    () => drive.collageImages(),
+    [],
+    () => drive.getCachedCollageImages()
   );
 }
 

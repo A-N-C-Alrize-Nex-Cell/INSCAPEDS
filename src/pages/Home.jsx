@@ -13,8 +13,8 @@ import { stats } from "../data/content";
 import ProjectCard from "../components/ProjectCard";
 import Home_2ndSection from "./Home_2ndSection";
 import AnimatedCounter from "../components/AnimatedCounter";
-import { useProjectsWithDetails, useSectionImages, useClientLogos } from "../hooks/useDrive";
-import { isDriveConfigured } from "../lib/drive";
+import { useProjectsWithDetails, useSectionImages, useSectionProjectCovers, useClientLogos } from "../hooks/useDrive";
+import { isDriveConfigured, matchProjectByLabel } from "../lib/drive";
 import ResilientImage from "../components/ResilientImage";
 
 import archTower from "../assets/arch_tower.png";
@@ -64,26 +64,54 @@ export default function Home() {
   const { data: driveProjects } = useProjectsWithDetails("All");
   const { data: drivePublications } = useSectionImages("home", "Awards and Publication");
   const { data: driveClientLogos } = useClientLogos();
+  // Selected Work(3rd Section) holds one project subfolder per featured
+  // card (e.g. "01_HSB Joypur") — each subfolder's cover image is matched
+  // back to the real project by name (fuzzy, since the two are typed by
+  // hand in different places) so the card still links to that project's
+  // real detail page.
+  const { data: driveSelectedWork } = useSectionProjectCovers("home", "Selected Work(3rd Section)");
 
-  const featuredProjects = driveReady && driveProjects?.length
-    ? driveProjects.slice(0, 6).map((p) => {
-        // First gallery image that isn't the cover (cover may be a "DP"-named
-        // file anywhere in natural order, not necessarily the first image).
-        const hover = p.gallery?.find((img) => img.id !== p.cover?.id) || p.cover;
+  const featuredProjects = (() => {
+    if (!driveReady) return newFeaturedProjects;
+
+    if (driveSelectedWork?.length) {
+      return driveSelectedWork.map((slot) => {
+        const match = driveProjects?.length ? matchProjectByLabel(driveProjects, slot.label) : null;
+        const hover = match?.gallery?.find((img) => img.id !== match.cover?.id) || match?.cover;
         return {
-          id: p.id,
-          title: p.title,
-          location: p.location || p.category,
-          year: p.year,
-          category: p.category,
-          // Card-sized tile — use the smaller thumbnail, not the full 1920px image.
-          image: p.cover?.thumb || "",
-          imageCandidates: p.cover?.thumbCandidates,
-          hoverImage: hover?.thumb || "",
-          hoverImageCandidates: hover?.thumbCandidates,
+          id: match?.id,
+          title: match?.title || slot.label,
+          location: match?.location || match?.category || "",
+          year: match?.year,
+          category: match?.category,
+          image: slot.cover?.thumb || match?.cover?.thumb || "",
+          imageCandidates: slot.cover?.thumbCandidates || match?.cover?.thumbCandidates,
+          hoverImage: slot.cover?.thumb || hover?.thumb || "",
+          hoverImageCandidates: slot.cover?.thumbCandidates || hover?.thumbCandidates,
         };
-      })
-    : newFeaturedProjects;
+      }).filter((p) => p.id); // drop slots that couldn't be matched to a real project (would otherwise link nowhere)
+    }
+
+    return driveProjects?.length
+      ? driveProjects.slice(0, 6).map((p) => {
+          // First gallery image that isn't the cover (cover may be a "DP"-named
+          // file anywhere in natural order, not necessarily the first image).
+          const hover = p.gallery?.find((img) => img.id !== p.cover?.id) || p.cover;
+          return {
+            id: p.id,
+            title: p.title,
+            location: p.location || p.category,
+            year: p.year,
+            category: p.category,
+            // Card-sized tile — use the smaller thumbnail, not the full 1920px image.
+            image: p.cover?.thumb || "",
+            imageCandidates: p.cover?.thumbCandidates,
+            hoverImage: hover?.thumb || "",
+            hoverImageCandidates: hover?.thumbCandidates,
+          };
+        })
+      : newFeaturedProjects;
+  })();
 
   const marqueePublications = driveReady && drivePublications?.length
     ? drivePublications.map((img) => ({ src: img.thumb, candidates: img.thumbCandidates }))
