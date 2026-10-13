@@ -214,7 +214,8 @@ export const projectRegistry = [
     location: "RAJARHAT, KOLKATA",
     status: "Completed",
     area: "2.5 Acres",
-    category: "Residential"
+    category: "Residential",
+    description: `A simplistic approach to achieve the maximum green through terraces. These are semi luxurious in nature, with amenities like swimming pool and gyms. A housing project comprising of high end apartments and studio apartments with a subtle and serene approach on ground floor but luxurious and posh approach on the terraces. The design features exquisite materials and active spaces to amalgamate with the luxurious lifestyle of the residents.\n\nThe gate design is very simple using local elements and a very practical design approach that merges with the enormity of the scale of the project and also stands out because of the geometric design approach and a slight quirky flooring pattern.`
   },
   {
     keywords: ["samriddhi park", "namkom"],
@@ -223,7 +224,7 @@ export const projectRegistry = [
     status: "Completed 2020",
     area: "3 Acres",
     category: "Residential",
-    description: `Some very organic designs pave the way for a very integrated landscape experience complete with all the modern facilities that one can think of in a residential complex.`
+    description: `Some very organic designs pave the way for a very integrated landscape experience complete with all the modern facilities that one can think of in a residential complex.\n\nSome snippets of the ongoing construction from the site enables us to understand the details and dynamicity of the whole space. A gazebo and a free standing wall all emphasize on the variety of space quality in the premises making it interesting for the users as well as aesthetic for the masses.`
   },
 
   // CORPORATE / COMMERCIAL
