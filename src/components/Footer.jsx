@@ -99,7 +99,7 @@ export default function Footer() {
             © {new Date().getFullYear()} Inscape Architecture Studio. All rights reserved.
           </p>
           <a
-            href="mailto:hello@inscape.studio"
+            href="mailto:info.inscapeds@gmail.com"
             className="text-xs text-sand-300 hover:text-sand-50 transition-colors inline-flex items-center gap-1"
           >
             Start a project

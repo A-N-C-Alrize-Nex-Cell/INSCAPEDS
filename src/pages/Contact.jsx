@@ -211,17 +211,25 @@ export default function Contact() {
 
       {/* STUDIO ADDRESS & DETAILS */}
       <section className="container-wide py-16 md:py-20 border-t border-ink-200/60">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           <InfoBlock icon={MapPin} title="Studio">
             <p>BA91, BA Block, Sector 1</p>
             <p className="text-ink-500">Bidhannagar, Kolkata - 700 064</p>
           </InfoBlock>
           <InfoBlock icon={Mail} title="Email">
             <a
-              href="mailto:hello@inscape.studio"
+              href="mailto:info.inscapeds@gmail.com"
               className="hover:text-clay-500 transition-colors"
             >
-              hello@inscape.studio
+              info.inscapeds@gmail.com
+            </a>
+          </InfoBlock>
+          <InfoBlock icon={Phone} title="Phone">
+            <a
+              href="tel:+916289859629"
+              className="hover:text-clay-500 transition-colors"
+            >
+              +91 62898 59629
             </a>
           </InfoBlock>
           <InfoBlock icon={Clock} title="Office Hours">
