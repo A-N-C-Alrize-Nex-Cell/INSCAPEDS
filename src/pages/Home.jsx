@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Infinity } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Infinity } from "lucide-react";
 import {
   fadeUp,
   staggerContainer,
@@ -118,7 +118,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/40" />
         </div>
 
-        <div className="relative h-full container-wide flex flex-col justify-end pb-48 md:pb-56">
+        <div className="relative h-full container-wide flex flex-col justify-end pb-60 md:pb-72">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -130,6 +130,20 @@ export default function Home() {
           <h1 className="font-serif text-sand-50 text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl leading-[1.15] max-w-sm sm:max-w-lg md:max-w-5xl lg:max-w-6xl xl:max-w-7xl">
             <AnimatedText text="Creating Landscapes That Engage The Senses, Enrich Everyday Life, And Give Meaning To Place." delay={0.3} />
           </h1>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.8 }}
+            className="mt-12 flex items-center gap-3 text-sand-200"
+          >
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            >
+              <ArrowDown size={20} />
+            </motion.div>
+            <span className="text-xs uppercase tracking-ultra-wide">Scroll</span>
+          </motion.div>
         </div>
       </section>
 
