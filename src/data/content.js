@@ -171,7 +171,7 @@ export const principles = [
 ];
 
 export const stats = [
-  { value: "100 Acres", label: "Total Area We Have Covered" },
+  { value: "100+ Acres", label: "Total Area We Have Covered" },
   { value: "75+", label: "Clients" },
   { value: "25000+", label: "Trees & Shrubs Planted" },
   { value: "24", label: "Cities" },
