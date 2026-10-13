@@ -149,9 +149,9 @@ export default function Projects() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 flex items-start justify-between gap-2">
+                <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
                   <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">{project.title}</h3>
-                  <div className="text-left text-[10px] sm:text-[11px] text-ink-500 font-sans space-y-0.5 flex-shrink-0">
+                  <div className="text-left text-[10px] sm:text-[11px] text-ink-500 font-sans space-y-0.5 sm:flex-shrink-0">
                     <p>Status: {project.status || (project.year ? `Completed ${project.year}` : "Completed 2022")}</p>
                     <p>Area: {project.area || project.size || "10 Acres"}</p>
                   </div>

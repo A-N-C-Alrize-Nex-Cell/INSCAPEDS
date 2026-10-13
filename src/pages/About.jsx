@@ -308,7 +308,7 @@ export default function About() {
                       }`}
                   >
                     {/* Text Column (Shifted slightly down) */}
-                    <div className="w-full md:w-1/2 md:px-6 flex flex-col justify-center pt-6 md:pt-8">
+                    <div className="w-full md:w-1/2 pl-8 md:pl-0 md:px-6 flex flex-col justify-center pt-6 md:pt-8">
                       <div className={`${i % 2 === 0 ? "md:text-right" : "md:text-left"}`}>
                         <span className="font-serif text-6xl md:text-7xl text-clay-400/60 block mb-4">
                           {step.number}
