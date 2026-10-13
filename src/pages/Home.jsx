@@ -153,7 +153,7 @@ export default function Home() {
 
 
       {/* FEATURED PROJECTS */}
-      <section className="bg-sand-100 py-24 md:py-36">
+      <section className="bg-sand-100 pt-12 md:pt-16 pb-24 md:pb-36">
         <div className="container-wide">
           <motion.div
             variants={fadeUp}
@@ -164,7 +164,7 @@ export default function Home() {
           >
             <div>
               <h2 className="font-sans font-medium text-3xl md:text-5xl text-ink-800">
-                Spaces we've shaped
+                Spaces We've Shaped
               </h2>
             </div>
             <Link
