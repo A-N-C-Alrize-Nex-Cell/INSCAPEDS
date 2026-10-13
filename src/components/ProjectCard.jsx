@@ -41,9 +41,6 @@ export default function ProjectCard({ project, index = 0 }) {
           )}
 
         </div>
-        <div className="mt-3">
-          <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">{project.title}</h3>
-        </div>
       </Link>
     </motion.div>
   );
