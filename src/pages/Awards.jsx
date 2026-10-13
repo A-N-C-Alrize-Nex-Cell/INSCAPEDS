@@ -216,7 +216,7 @@ export default function Awards() {
                   src={img.thumb || img.src}
                   candidates={img.thumbCandidates || img.candidates}
                   alt={img.alt || "Featured publication"}
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
               </div>
