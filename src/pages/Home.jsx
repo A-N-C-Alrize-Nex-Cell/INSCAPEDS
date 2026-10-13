@@ -62,7 +62,7 @@ export default function Home() {
   // fallback so the homepage keeps working before Drive is configured.
   const driveReady = isDriveConfigured();
   const { data: driveProjects } = useProjectsWithDetails("All");
-  const { data: drivePublications } = useSectionImages("home", "Publications");
+  const { data: drivePublications } = useSectionImages("home", "Awards and Publication");
   const { data: driveClientLogos } = useClientLogos();
 
   const featuredProjects = driveReady && driveProjects?.length
@@ -223,7 +223,7 @@ export default function Home() {
               <div className="flex w-max gap-4 md:gap-6 hover:[animation-play-state:paused] animate-marquee">
                 {[...marqueePublications, ...marqueePublications, ...marqueePublications, ...marqueePublications].map((img, idx) => (
                   <div key={idx} className="w-48 md:w-64 h-64 md:h-72 flex-shrink-0 overflow-hidden bg-sand-100">
-                    <ResilientImage src={img.src} candidates={img.candidates} alt="Publication" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 ease-smooth" loading="lazy" />
+                    <ResilientImage src={img.src} candidates={img.candidates} alt="Publication" className="w-full h-full object-contain grayscale hover:grayscale-0 transition-all duration-500 ease-smooth" loading="lazy" />
                   </div>
                 ))}
               </div>
@@ -285,11 +285,11 @@ export default function Home() {
         >
           {clientImages.length > 0 ? (
             // Drive-based client logos - 4x loop repeat for continuous seamless scroll on mobile
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow opacity-80 hover:opacity-100 transition-all duration-500">
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-80 hover:opacity-100 transition-all duration-500">
               {[...Array(4)].map((_, loopIdx) => (
                 <div key={loopIdx} className="flex items-center gap-8 sm:gap-12 md:gap-16 pr-8 sm:pr-12 md:pr-16">
                   {clientImages.map((logo, idx) => (
-                    <div key={idx} className="h-12 sm:h-16 md:h-20 w-28 sm:w-36 md:w-44 flex items-center justify-center p-1">
+                    <div key={idx} className="h-12 sm:h-16 md:h-20 w-28 sm:w-36 md:w-44 flex items-center justify-center p-1 flex-shrink-0">
                       <ResilientImage
                         src={logo.src}
                         candidates={logo.srcCandidates}
@@ -303,7 +303,7 @@ export default function Home() {
             </div>
           ) : (
             // Fallback to hardcoded logos
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow opacity-80 transition-all duration-500">
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee opacity-80 transition-all duration-500">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex items-center gap-12 sm:gap-20 md:gap-32 pr-12 sm:pr-20 md:pr-32">
                   <div className="font-sans font-black text-xl sm:text-2xl md:text-3xl tracking-tighter uppercase cursor-default hover:text-ink-900 transition-colors duration-300">
