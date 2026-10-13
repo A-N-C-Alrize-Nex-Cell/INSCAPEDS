@@ -89,7 +89,7 @@ export function AnimatedText({ text, className = "", delay = 0 }) {
           <motion.span className="inline-block" variants={letterItem}>
             {word}
           </motion.span>
-          {i < words.length - 1 && <span className="inline-block w-[0.38em]">&nbsp;</span>}
+          {i < words.length - 1 && <span className="inline-block w-[0.26em]">&nbsp;</span>}
         </span>
       ))}
     </motion.span>
