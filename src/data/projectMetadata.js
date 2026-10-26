@@ -402,7 +402,8 @@ export const projectRegistry = [
     location: "BARRACKPORE",
     status: "Completed 2022",
     area: "0.5 Acres",
-    category: "Bunglow Landscape"
+    category: "Bunglow Landscape",
+    description: `Located on the east bank of the Hooghly River, this riverfront bungalow features a serene landscape design with simple elements. Tropical plants line the space, offering lush greenery and shade. A stepping stone path through the lawn, inviting leisurely walks. The open lawn area provides a peaceful spot to relax and rejuvenate, blending nature with comfort in a tranquil riverside setting.`
   },
   {
     keywords: ["valotia bunglow", "valotia"],
@@ -410,7 +411,8 @@ export const projectRegistry = [
     location: "RANIGUNJ",
     status: "Completed 2023",
     area: "2.3 Acres",
-    category: "Bunglow Landscape"
+    category: "Bunglow Landscape",
+    description: `A private landscape bungalow offers a secluded, tranquil retreat, blending the beauty of nature with sophisticated living spaces. This type of home is designed to provide privacy and intimacy, surrounded by lush greenery, serene outdoor areas, and luxurious interior elements. Lush greenery with a mix of native plants, manicured lawns, and strategically placed trees for natural shade and privacy. The landscape design prioritizes harmony with the surrounding environment.`
   },
   {
     keywords: ["prankit villa", "prankit"],
@@ -418,7 +420,8 @@ export const projectRegistry = [
     location: "BOLPUR",
     status: "Completed 2025",
     area: "3.0 Acres",
-    category: "Bunglow Landscape"
+    category: "Bunglow Landscape",
+    description: `The landscape of Prantik Villa, Bolpur captures the essence of local culture with a modern touch. A vibrant lighting setup highlights pathways and garden features, creating a magical evening ambiance. At its heart stands a striking Baul sculpture, celebrating Bengal's rich folk heritage. Surrounded by curated greenery, the villa's landscape offers a soulful blend of art, light, and nature.`
   },
   {
     keywords: ["urbana b10", "urbana"],
@@ -426,7 +429,8 @@ export const projectRegistry = [
     location: "KOLKATA, WEST BENGAL",
     status: "Completed 2024",
     area: "1.3 Acres",
-    category: "Bunglow Landscape"
+    category: "Bunglow Landscape",
+    description: `The landscaping is kept simple and relaxed, reflecting the bungalow's emphasis on blending with nature. Wooden garden benches, bird baths, creating a welcoming and warm outdoor environment. The overall landscape embraces natural textures and earthy tones, aiming to create a peaceful retreat while maintaining the bungalow's cozy, unpretentious aesthetic.`
   },
   {
     keywords: ["bhaskar sharma", "bhaskar"],
@@ -434,7 +438,8 @@ export const projectRegistry = [
     location: "GUWAHATI",
     status: "Completed 2022",
     area: "0.5 Acres",
-    category: "Bunglow Landscape"
+    category: "Bunglow Landscape",
+    description: `The bungalow's landscape is a serene retreat, centered around a graceful water feature that brings sound and movement to the space. Surrounded by dense, lush plantation, the garden offers privacy and a cool, refreshing ambiance. Native plants and textured greenery create visual depth, while the gentle water flow enhances tranquility—crafting a perfect blend of luxury and nature.`
   },
   {
     keywords: ["shyamdham"],
