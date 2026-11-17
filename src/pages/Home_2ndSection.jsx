@@ -21,7 +21,7 @@ export default function Home_2ndSection() {
   const { data: collageImages } = useCollageImages();
 
   // If Drive has 8 or more images, activate the 8-image 5-column pattern;
-  // otherwise, default to the previous 6-image 4-column pattern.
+  // otherwise, default to the 6-image 4-column pattern.
   const isEight = Boolean(driveReady && collageImages && collageImages.length >= 8);
 
   // 8 slots defined: slots 0-5 use Drive or fallback; slots 6-7 (7th & 8th images)
@@ -71,27 +71,35 @@ export default function Home_2ndSection() {
     };
   }, []);
 
-  useLenis(({ scroll }) => {
-    if (!bounds.current.height) return;
+  // 3. Parallax effect with Lenis Scroll
+  useLenis((lenis) => {
+    if (!sectionRef.current || !bounds.current.height) return;
 
+    const scrollY = lenis.scroll;
+    const { top, height } = bounds.current;
     const windowHeight = window.innerHeight;
-    const sectionTop = bounds.current.top - scroll;
 
-    // Calculate scroll progress within the section
-    const progress = Math.max(0, Math.min(1, (windowHeight - sectionTop) / (windowHeight + bounds.current.height)));
+    // Check if section is in or near viewport
+    if (scrollY + windowHeight > top && scrollY < top + height) {
+      // Progress from 0 (section enters bottom) to 1 (section leaves top)
+      const progress = (scrollY + windowHeight - top) / (windowHeight + height);
 
-    if (image3Ref.current) {
-      const translateY = (1 - progress) * 12 - 2;
-      image3Ref.current.style.transform = `translateY(${translateY}%)`;
+      // Subtle parallax shifts for center stacked images
+      if (image3Ref.current) {
+        const y3 = (progress - 0.5) * -40; // moves slightly up
+        image3Ref.current.style.transform = `translate3d(0, ${y3}px, 0)`;
+      }
+      if (image4Ref.current) {
+        const y4 = (progress - 0.5) * 50; // moves slightly down
+        image4Ref.current.style.transform = `translate3d(0, ${y4}px, 0)`;
+      }
     }
 
-    if (image4Ref.current) {
-      const translateY = -(progress * 8) + 4;
-      image4Ref.current.style.transform = `translateY(${translateY}%)`;
-    }
-
+    // Parallax effect for the cross text block
     if (crossTextRef.current) {
-      const translateY = (1 - progress) * 80 - 10;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const sectionProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)));
+      const translateY = -20 + (sectionProgress * 40);
       crossTextRef.current.style.transform = `translateY(${translateY}%)`;
     }
   });
