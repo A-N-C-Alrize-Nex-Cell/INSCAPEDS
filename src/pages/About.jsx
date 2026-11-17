@@ -36,15 +36,22 @@ export default function About() {
   const founderSrc = (driveReady && founderImages?.[0]?.src) || founderImage;
   const founderCandidates = driveReady && founderImages?.[0]?.srcCandidates;
 
-  // 5 slots: first 4 fill the small 2x2 photos, the 5th is the large tall
-  // photo — numbered 1_.. through 5_.. in the Drive folder to control order.
-  const bentoSlots = [0, 1, 2, 3, 4].map((i) => {
-    const img = driveReady && bentoImages?.[i];
-    return {
-      src: img?.src || studioImage,
-      candidates: img?.srcCandidates,
-    };
-  });
+  // Sourced from About/Bento Grid_Last Section Drive folder (or fallback slots)
+  const bentoList = (driveReady && bentoImages && bentoImages.length > 0)
+    ? bentoImages.map((img) => ({
+      src: img.src,
+      thumb: img.thumb,
+      candidates: img.srcCandidates,
+      thumbCandidates: img.thumbCandidates,
+      alt: img.alt || "Inscape studio",
+    }))
+    : Array.from({ length: 8 }, (_, i) => ({
+      src: studioImage,
+      thumb: studioImage,
+      candidates: [studioImage],
+      thumbCandidates: [studioImage],
+      alt: `Inscape studio ${i + 1}`,
+    }));
 
   // Use Drive team members if available, otherwise fallback to static data
   const displayTeam = (driveReady && driveTeamMembers && driveTeamMembers.length > 0)
@@ -232,34 +239,34 @@ export default function About() {
                 onClick={() => openLightbox(teamImagesList, i)}
                 className="group cursor-pointer relative aspect-square overflow-hidden bg-ink-100 rounded-sm"
               >
-              {member.src ? (
-                <ResilientImage
-                  src={member.src}
-                  candidates={member.srcCandidates}
-                  alt={member.name}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                />
-              ) : (
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                />
-              )}
+                {member.src ? (
+                  <ResilientImage
+                    src={member.src}
+                    candidates={member.srcCandidates}
+                    alt={member.name}
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                  />
+                ) : (
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                  />
+                )}
 
-              {/* Dark gradient overlay for text readability, visible only on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-ink-900/90 via-ink-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                {/* Dark gradient overlay for text readability, visible only on hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-900/90 via-ink-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-              {/* Text content, animating in from bottom left */}
-              <div className="absolute bottom-0 left-0 p-5 md:p-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end">
-                <h3 className="font-serif text-lg md:text-xl text-sand-50">{member.name}</h3>
-                <p className="text-[10px] md:text-xs text-sand-300 uppercase tracking-widest mt-1">
-                  {member.designation || member.role}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
+                {/* Text content, animating in from bottom left */}
+                <div className="absolute bottom-0 left-0 p-5 md:p-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end">
+                  <h3 className="font-serif text-lg md:text-xl text-sand-50">{member.name}</h3>
+                  <p className="text-[10px] md:text-xs text-sand-300 uppercase tracking-widest mt-1">
+                    {member.designation || member.role}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
 
@@ -387,95 +394,31 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* BENTO GRID — 2x2 small photos on the left, one large tall photo
-          on the right. Sourced from the About/Bento Grid_Section Drive
-          folder, numbered 1_.. through 5_.. to control which photo lands
-          in which slot (5th = the large one). */}
+      {/* PHOTO GRID — 4x4 grid layout sourced from About/Bento Grid_Last Section Drive folder */}
       <section className="container-wide pt-0 pb-24 md:pb-36">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
-          className="photo-bento grid grid-cols-2 gap-3 md:gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
         >
-          <motion.div
-            variants={staggerItem}
-            className="photo-bento-a aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
-          >
-            <ResilientImage
-              src={bentoSlots[0].src}
-              candidates={bentoSlots[0].candidates}
-              alt="Inscape studio"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-
-          <motion.div
-            variants={staggerItem}
-            className="photo-bento-b aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
-          >
-            <ResilientImage
-              src={bentoSlots[1].src}
-              candidates={bentoSlots[1].candidates}
-              alt="Inscape studio"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-
-          <motion.div
-            variants={staggerItem}
-            className="photo-bento-c aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
-          >
-            <ResilientImage
-              src={bentoSlots[2].src}
-              candidates={bentoSlots[2].candidates}
-              alt="Inscape studio"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-
-          <motion.div
-            variants={staggerItem}
-            className="photo-bento-d aspect-[4/5] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
-          >
-            <ResilientImage
-              src={bentoSlots[3].src}
-              candidates={bentoSlots[3].candidates}
-              alt="Inscape studio"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-
-          <motion.div
-            variants={staggerItem}
-            className="photo-bento-e col-span-2 md:col-span-1 aspect-[16/9] md:aspect-auto overflow-hidden rounded-sm bg-sand-200"
-          >
-            <ResilientImage
-              src={bentoSlots[4].src}
-              candidates={bentoSlots[4].candidates}
-              alt="Inscape studio"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
+          {bentoList.map((item, i) => (
+            <motion.div
+              key={i}
+              variants={staggerItem}
+              onClick={() => openLightbox(bentoList, i)}
+              className="aspect-square overflow-hidden rounded-sm bg-sand-200 group border border-ink-100 cursor-pointer relative"
+            >
+              <ResilientImage
+                src={item.thumb || item.src}
+                candidates={item.thumbCandidates || item.candidates}
+                alt={item.alt || `Inscape studio photo ${i + 1}`}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            </motion.div>
+          ))}
         </motion.div>
-
-        <style>{`
-          @media (min-width: 768px) {
-            .photo-bento {
-              grid-template-columns: repeat(3, 1fr);
-              grid-template-rows: repeat(2, minmax(280px, 1fr));
-              grid-template-areas:
-                "a b e"
-                "c d e";
-            }
-            .photo-bento-a { grid-area: a; }
-            .photo-bento-b { grid-area: b; }
-            .photo-bento-c { grid-area: c; }
-            .photo-bento-d { grid-area: d; }
-            .photo-bento-e { grid-area: e; }
-          }
-        `}</style>
       </section>
 
       {/* CTA */}

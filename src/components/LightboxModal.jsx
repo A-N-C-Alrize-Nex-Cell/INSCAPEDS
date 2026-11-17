@@ -115,15 +115,19 @@ export default function LightboxModal({
 
         {/* Main Image */}
         <div
-          className="max-w-6xl max-h-[88vh] relative flex items-center justify-center overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
+          className="relative flex items-center justify-center w-full h-[78vh] sm:h-[82vh] md:h-[86vh] max-w-6xl mx-auto px-4 md:px-12 pointer-events-none"
         >
-          <ResilientImage
-            src={src}
-            candidates={candidates}
-            alt={alt}
-            className="max-w-full max-h-[88vh] object-contain shadow-2xl select-none"
-          />
+          <div
+            className="relative h-full w-full flex items-center justify-center pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ResilientImage
+              src={src}
+              candidates={candidates}
+              alt={alt}
+              className="h-full w-auto max-w-[85vw] md:max-w-[75vw] max-h-[78vh] sm:max-h-[82vh] md:max-h-[86vh] object-contain shadow-2xl select-none"
+            />
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>

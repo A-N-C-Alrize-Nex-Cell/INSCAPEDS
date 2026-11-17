@@ -123,22 +123,22 @@ export const values = [
   {
     title: "Sustainability",
     description:
-      "We design for the long now. Every project is assessed for embodied carbon, operational energy, and its capacity to age gracefully.",
+      "We embrace a long-term approach to sustainable design, prioritising environmental responsibility at every stage. Through preserving existing vegetation, integrating native plant species, and using locally sourced materials, we minimise environmental impact while creating landscapes that evolve gracefully over time.",
   },
   {
     title: "Craftsmanship",
     description:
-      "We believe in the hand and the eye. We collaborate with artisans and builders who care, and we detail for making, not just for drawing.",
+      "We value skilled craftsmanship and thoughtful detailing, collaborating with local artisans and craftspeople to bring their knowledge and expertise into each project. Through careful material selection, practical execution, and context-responsive detailing, we create work that is meaningful and enduring.",
   },
   {
     title: "Collaboration",
     description:
-      "Architecture is a team sport. We work openly with clients, consultants, and contractors, sharing information and credit generously.",
+      "We believe meaningful design is built on collective effort. Working closely with clients, consultants, and contractors, we encourage open communication, shared expertise, and coordinated execution to translate the client’s vision into outcomes that balance functional, aesthetic, and practical considerations.",
   },
   {
     title: "Context-Driven",
     description:
-      "We start with the place. Climate, history, and community are not constraints but the raw material of the design.",
+      "Every design begins with an understanding of its place. Drawing inspiration from the local climate, history, culture, and community, we create landscapes that respond to their surroundings, celebrate inherent site qualities, and establish a meaningful connection between people and place.",
   },
 ];
 

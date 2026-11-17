@@ -55,10 +55,19 @@ export default function Navbar() {
 
           <ul className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => {
-              const active = location.pathname === link.path;
+              const isAwardsLink = link.path === "/awards";
+              const active =
+                location.pathname === link.path ||
+                (isAwardsLink && (
+                  location.pathname.startsWith("/awards") ||
+                  location.pathname.startsWith("/publication") ||
+                  location.pathname.startsWith("/award") ||
+                  location.pathname.startsWith("/honor")
+                )) ||
+                (!isAwardsLink && link.path !== "/" && location.pathname.startsWith(link.path));
 
               let linkColor = active ? "text-[#31682c]" : "text-ink-700 hover:text-ink-900";
-              if (isHeroTop) {
+              if (isHeroTop && !active) {
                 linkColor = "text-white hover:text-sand-200";
               }
 
@@ -121,7 +130,16 @@ export default function Navbar() {
               className="flex flex-col px-6 mt-10"
             >
               {navLinks.map((link) => {
-                const active = location.pathname === link.path;
+                const isAwardsLink = link.path === "/awards";
+                const active =
+                  location.pathname === link.path ||
+                  (isAwardsLink && (
+                    location.pathname.startsWith("/awards") ||
+                    location.pathname.startsWith("/publication") ||
+                    location.pathname.startsWith("/award") ||
+                    location.pathname.startsWith("/honor")
+                  )) ||
+                  (!isAwardsLink && link.path !== "/" && location.pathname.startsWith(link.path));
                 return (
                   <motion.li
                     key={link.name}

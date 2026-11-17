@@ -9,6 +9,8 @@ import ProjectDetail from "../pages/ProjectDetail";
 const About = lazy(() => import("../pages/About"));
 const Awards = lazy(() => import("../pages/Awards"));
 const Contact = lazy(() => import("../pages/Contact"));
+const PublicationDetail = lazy(() => import("../pages/PublicationDetail"));
+const AwardDetail = lazy(() => import("../pages/AwardDetail"));
 
 // Loading fallback
 const PageLoader = () => <div className="h-screen bg-sand-100" />;
@@ -17,13 +19,27 @@ export default function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo(0, 0)}>
+    <AnimatePresence
+      mode="wait"
+      initial={false}
+      onExitComplete={() => {
+        if (!sessionStorage.getItem("return_to_section")) {
+          window.scrollTo(0, 0);
+        }
+      }}
+    >
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<Suspense fallback={<PageLoader />}><About /></Suspense>} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/awards" element={<Suspense fallback={<PageLoader />}><Awards /></Suspense>} />
+        <Route path="/awards/publication/:id" element={<Suspense fallback={<PageLoader />}><PublicationDetail /></Suspense>} />
+        <Route path="/publication/:id" element={<Suspense fallback={<PageLoader />}><PublicationDetail /></Suspense>} />
+        <Route path="/awards/award/:id" element={<Suspense fallback={<PageLoader />}><AwardDetail /></Suspense>} />
+        <Route path="/awards/honor/:id" element={<Suspense fallback={<PageLoader />}><AwardDetail /></Suspense>} />
+        <Route path="/award/:id" element={<Suspense fallback={<PageLoader />}><AwardDetail /></Suspense>} />
+        <Route path="/honor/:id" element={<Suspense fallback={<PageLoader />}><AwardDetail /></Suspense>} />
         <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
       </Routes>
     </AnimatePresence>

@@ -10,10 +10,12 @@ import {
   staggerContainer,
   AnimatedText,
 } from "../lib/animations";
-import { useSectionImages } from "../hooks/useDrive";
+import { useSectionImages, usePublications, useAwards } from "../hooks/useDrive";
 import { isDriveConfigured } from "../lib/drive";
 import ResilientImage from "../components/ResilientImage";
 import LightboxModal from "../components/LightboxModal";
+import { getPublicationMetadata } from "../data/publicationMetadata";
+import { getAwardMetadata } from "../data/awardMetadata";
 
 const staticAwardImages = [
   "/awards/award1.jpg",
@@ -46,67 +48,121 @@ const PUBLICATION_FOLDER_CANDIDATES = [
 ];
 
 const fallbackPublications = [
+  "/awards/landscape_publication.jpg",
   "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?auto=format&fit=crop&w=400&q=80",
   "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=400&q=80",
   "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=400&q=80",
   "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=400&q=80",
   "https://images.unsplash.com/photo-1513001900722-370f803f498d?auto=format&fit=crop&w=400&q=80",
-  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=400&q=80",
 ];
 
 export default function Awards() {
   const driveReady = isDriveConfigured();
-  const { data: driveAwardImages } = useSectionImages("awards", AWARD_FOLDER_CANDIDATES);
+  const { data: driveAwards } = useAwards();
   const { data: driveSketches } = useSectionImages("awards", SKETCH_FOLDER_CANDIDATES);
-  const { data: drivePublications } = useSectionImages("awards", PUBLICATION_FOLDER_CANDIDATES);
+  const { data: drivePublications } = usePublications();
 
-  const awardImages = driveReady
-    ? (driveAwardImages || []).map((img) => ({
-        src: img.src,
-        thumb: img.thumb,
-        candidates: img.srcCandidates,
-        thumbCandidates: img.thumbCandidates,
-        alt: img.alt || "Award Image",
-      }))
+  useEffect(() => {
+    const returnTarget = sessionStorage.getItem("return_to_section");
+    if (returnTarget) {
+      sessionStorage.removeItem("return_to_section");
+      const el = document.getElementById(returnTarget);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
+      }
+    } else if (window.location.hash) {
+      const el = document.querySelector(window.location.hash);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
+      }
+    }
+  }, []);
+
+  const awardList = driveReady && driveAwards && driveAwards.length > 0
+    ? driveAwards.map((award, idx) => {
+      const meta = getAwardMetadata(award.name || award.title || award.id, idx);
+      const resolvedTitle =
+        award.coverInfo?.title ||
+        award.info?.title ||
+        award.title ||
+        award.name ||
+        meta?.title ||
+        `Award ${idx + 1}`;
+
+      return {
+        id: award.id || award.folderId || `award-${idx}`,
+        name: award.name || `Award ${idx + 1}`,
+        title: resolvedTitle,
+        src: award.src || award.cover?.src,
+        thumb: award.thumb || award.cover?.thumb,
+        candidates: award.srcCandidates || award.cover?.srcCandidates || [award.src],
+        thumbCandidates: award.thumbCandidates || award.cover?.thumbCandidates || [award.thumb],
+        alt: award.alt || resolvedTitle || "Honors and Awards",
+        coverInfo: award.coverInfo || null,
+      };
+    })
     : staticAwardImages.map((src, idx) => ({
-        src,
-        thumb: src,
-        candidates: [src],
-        thumbCandidates: [src],
-        alt: `Award image ${idx + 1}`,
-      }));
+      id: `award-${idx}`,
+      name: `Award ${idx + 1}`,
+      title: `Award ${idx + 1}`,
+      src,
+      thumb: src,
+      candidates: [src],
+      thumbCandidates: [src],
+      alt: `Award image ${idx + 1}`,
+      coverInfo: null,
+    }));
 
   const sketches = driveReady
     ? (driveSketches || []).map((img) => ({
-        src: img.src,
-        thumb: img.thumb,
-        candidates: img.srcCandidates,
-        thumbCandidates: img.thumbCandidates,
-        alt: img.alt || "Architectural sketch",
-      }))
+      src: img.src,
+      thumb: img.thumb,
+      candidates: img.srcCandidates,
+      thumbCandidates: img.thumbCandidates,
+      alt: img.alt || "Architectural sketch",
+    }))
     : [sketch1, sketch2, sketch3].map((src) => ({
-        src,
-        thumb: src,
-        candidates: [src],
-        thumbCandidates: [src],
-        alt: "Architectural sketch",
-      }));
+      src,
+      thumb: src,
+      candidates: [src],
+      thumbCandidates: [src],
+      alt: "Architectural sketch",
+    }));
 
-  const publications = driveReady
-    ? (drivePublications || []).map((img) => ({
-        src: img.src,
-        thumb: img.thumb,
-        candidates: img.srcCandidates,
-        thumbCandidates: img.thumbCandidates,
-        alt: img.alt || "Featured Publication",
-      }))
+  const publications = driveReady && drivePublications && drivePublications.length > 0
+    ? drivePublications.map((pub, idx) => {
+      const meta = getPublicationMetadata(pub.name || pub.title || pub.id, idx);
+      const resolvedTitle =
+        pub.coverInfo?.title ||
+        pub.info?.title ||
+        pub.title ||
+        pub.name ||
+        meta?.title ||
+        `Publication ${idx + 1}`;
+
+      return {
+        id: pub.id || pub.folderId || `pub-${idx}`,
+        name: pub.name || `Publication ${idx + 1}`,
+        title: resolvedTitle,
+        src: pub.src || pub.cover?.src,
+        thumb: pub.thumb || pub.cover?.thumb,
+        candidates: pub.srcCandidates || pub.cover?.srcCandidates || [pub.src],
+        thumbCandidates: pub.thumbCandidates || pub.cover?.thumbCandidates || [pub.thumb],
+        alt: pub.alt || resolvedTitle || "Featured Publication",
+        coverInfo: pub.coverInfo || null,
+      };
+    })
     : fallbackPublications.map((src, idx) => ({
-        src,
-        thumb: src,
-        candidates: [src],
-        thumbCandidates: [src],
-        alt: `Featured publication ${idx + 1}`,
-      }));
+      id: `pub-${idx}`,
+      name: `Publication ${idx + 1}`,
+      title: `Publication ${idx + 1}`,
+      src,
+      thumb: src,
+      candidates: [src],
+      thumbCandidates: [src],
+      alt: `Featured publication ${idx + 1}`,
+      coverInfo: null,
+    }));
 
   // Lightbox State
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -120,8 +176,6 @@ export default function Awards() {
   const closeLightbox = () => {
     setLightboxIndex(null);
   };
-
-  const marqueeList = Array(4).fill(publications).flat();
 
   return (
     <motion.article
@@ -154,7 +208,7 @@ export default function Awards() {
       </section>
 
       {/* AWARDS LIST */}
-      <section className="container-wide pb-16 md:pb-24">
+      <section id="honors-and-awards" className="container-wide pb-16 md:pb-24">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -167,27 +221,51 @@ export default function Awards() {
             <h2 className="font-serif text-2xl md:text-3xl text-ink-800">Honors and Awards</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {awardImages.map((img, num) => (
-              <div
-                key={num}
-                onClick={() => openLightbox(awardImages, num)}
-                className="aspect-square bg-sand-200 overflow-hidden group border border-ink-100 cursor-pointer relative"
-              >
-                <ResilientImage
-                  src={img.thumb || img.src}
-                  candidates={img.thumbCandidates || img.candidates}
-                  alt={img.alt || `Award image ${num + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
+            {awardList.map((item, num) => {
+              const linkTarget = item.id || num;
+              const hasCoverInfo = Boolean(
+                item.coverInfo &&
+                (item.coverInfo.title || item.coverInfo.line2 || item.coverInfo.line3)
+              );
+              return (
+                <Link
+                  key={num}
+                  to={`/awards/award/${linkTarget}`}
+                  className="group block w-full text-left cursor-pointer"
+                >
+                  <div className="aspect-square bg-sand-200 overflow-hidden border border-ink-100 relative">
+                    <ResilientImage
+                      src={item.thumb || item.src}
+                      candidates={item.thumbCandidates || item.candidates}
+                      alt={item.alt || item.title || `Award image ${num + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  {hasCoverInfo && (
+                    <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                      {item.coverInfo.title && (
+                        <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
+                          {item.coverInfo.title}
+                        </h3>
+                      )}
+                      {(item.coverInfo.line2 || item.coverInfo.line3) && (
+                        <div className="text-left text-[10px] sm:text-[11px] text-ink-500 font-sans space-y-0.5 sm:flex-shrink-0">
+                          {item.coverInfo.line2 && <p>{item.coverInfo.line2}</p>}
+                          {item.coverInfo.line3 && <p>{item.coverInfo.line3}</p>}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </motion.div>
       </section>
 
       {/* PUBLICATIONS SECTION */}
-      <section className="bg-sand-200/50 py-16 md:py-24 grain-overlay overflow-hidden mb-16 md:mb-24">
+      <section id="featured-publications" className="bg-sand-200/50 py-16 md:py-24 grain-overlay overflow-hidden mb-16 md:mb-24">
         <div className="container-wide">
           <motion.div
             variants={fadeUp}
@@ -200,28 +278,48 @@ export default function Awards() {
               <BookOpen className="text-clay-500" size={26} />
               <h2 className="font-serif text-2xl md:text-3xl text-ink-800">Featured Publications</h2>
             </div>
-          </motion.div>
-        </div>
 
-        {/* MARQUEE CONTAINER - Edge to edge */}
-        <div className="relative w-full group">
-          <div className="flex w-max gap-4 md:gap-6 hover:[animation-play-state:paused] animate-marquee pl-4 md:pl-6">
-            {marqueeList.map((img, idx) => (
-              <div
-                key={idx}
-                onClick={() => openLightbox(publications, idx % publications.length)}
-                className="aspect-square w-64 md:w-96 flex-shrink-0 overflow-hidden group cursor-pointer"
-              >
-                <ResilientImage
-                  src={img.thumb || img.src}
-                  candidates={img.thumbCandidates || img.candidates}
-                  alt={img.alt || "Featured publication"}
-                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-            ))}
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
+              {publications.map((item, idx) => {
+                const linkTarget = item.id || idx;
+                const hasCoverInfo = Boolean(
+                  item.coverInfo &&
+                  (item.coverInfo.title || item.coverInfo.line2 || item.coverInfo.line3)
+                );
+                return (
+                  <Link
+                    key={idx}
+                    to={`/awards/publication/${linkTarget}`}
+                    className="group block w-full text-left cursor-pointer"
+                  >
+                    <div className="aspect-[3/4] bg-sand-200 overflow-hidden border border-ink-100 relative">
+                      <ResilientImage
+                        src={item.thumb || item.src}
+                        candidates={item.thumbCandidates || item.candidates}
+                        alt={item.alt || item.title || "Featured publication"}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    {hasCoverInfo && (
+                      <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                        {item.coverInfo.title && (
+                          <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
+                            {item.coverInfo.title}
+                          </h3>
+                        )}
+                        {(item.coverInfo.line2 || item.coverInfo.line3) && (
+                          <div className="text-left text-[10px] sm:text-[11px] text-ink-500 font-sans space-y-0.5 sm:flex-shrink-0">
+                            {item.coverInfo.line2 && <p>{item.coverInfo.line2}</p>}
+                            {item.coverInfo.line3 && <p>{item.coverInfo.line3}</p>}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -239,7 +337,7 @@ export default function Awards() {
             <h2 className="font-serif text-2xl md:text-3xl text-ink-800">Selected Sketches</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {sketches.map((sk, i) => (
               <div
                 key={i}

@@ -79,6 +79,24 @@ export function usePageSections(pageKey, opts) {
   );
 }
 
+/** Publications list (supports folder-per-publication and flat files). */
+export function usePublications(opts) {
+  return useAsync(
+    () => drive.getPublications(opts),
+    [JSON.stringify(opts || null)],
+    () => drive.getCachedPublications(opts)
+  );
+}
+
+/** Honors and Awards list (supports folder-per-award and flat files). */
+export function useAwards(opts) {
+  return useAsync(
+    () => drive.getAwards(opts),
+    [JSON.stringify(opts || null)],
+    () => drive.getCachedAwards(opts)
+  );
+}
+
 /* --- projects ------------------------------------------------------------- */
 
 /** Category names for the subnavbar (the app prepends "All"). */
@@ -169,6 +187,15 @@ export function useCollageImages() {
     () => drive.collageImages(),
     [],
     () => drive.getCachedCollageImages()
+  );
+}
+
+/** Hero section video from Home Page/Hero Section folder. */
+export function useHeroVideo() {
+  return useAsync(
+    () => drive.heroVideo(),
+    [],
+    () => null
   );
 }
 

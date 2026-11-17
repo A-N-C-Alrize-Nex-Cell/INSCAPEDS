@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
-import { navLinks } from "../data/content";
 
 export default function Footer() {
   return (
     <footer className="bg-ink-800 text-sand-100 grain-overlay">
       <div className="container-wide pt-20 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-          <div className="md:col-span-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12">
+          <div className="md:col-span-5">
             <Link 
               to="/" 
               className="text-[2.25rem] tracking-tight transition-opacity duration-300 hover:opacity-80 flex items-center h-10"
@@ -16,30 +15,12 @@ export default function Footer() {
               <span className="text-black [-webkit-text-stroke:0.25px_white]">in</span>
               <span className="text-[#31682c]">scape</span>
             </Link>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-sand-300">
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-sand-300">
               Inscape Design Studio is an exclusive landscape design firm based in Kolkata, India, offering expert amenities in landscape planning, landscape architecture as well as urban scale intervention.
             </p>
           </div>
 
-          <div className="md:col-span-2">
-            <h4 className="text-xs uppercase tracking-widest text-sand-400 mb-2 h-10 flex items-center">
-              Navigate
-            </h4>
-            <ul className="space-y-3">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="text-sm text-sand-200 hover:text-sand-50 transition-colors link-underline"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:col-span-3">
+          <div className="md:col-span-4">
             <h4 className="text-xs uppercase tracking-widest text-sand-400 mb-2 h-10 flex items-center">
               City Office
             </h4>

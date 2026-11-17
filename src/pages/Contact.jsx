@@ -17,6 +17,7 @@ export default function Contact() {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    phone: "",
     message: "",
   });
   const [status, setStatus] = useState("idle");
@@ -40,7 +41,7 @@ export default function Contact() {
     setStatus("sending");
     setTimeout(() => {
       setStatus("success");
-      setForm({ name: "", email: "", message: "" });
+      setForm({ name: "", email: "", phone: "", message: "" });
       setTimeout(() => setStatus("idle"), 4000);
     }, 1200);
   };
@@ -83,8 +84,8 @@ export default function Contact() {
           >
             <div>
               {/* HEADING */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-ink-900 font-sans mb-3">
-                Get in touch
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.15rem] xl:text-[2.75rem] 2xl:text-5xl font-bold tracking-tight text-ink-900 font-sans mb-3 whitespace-nowrap">
+                GET TOUCH WITH US
               </h1>
 
               {/* SUBTITLE */}
@@ -125,6 +126,22 @@ export default function Contact() {
                       className="w-full bg-transparent border-b border-ink-300/60 py-3 text-ink-900 placeholder-ink-400 focus:border-ink-900 focus:outline-none transition-colors text-base font-sans"
                     />
                   </div>
+                </div>
+
+                {/* PHONE NUMBER FIELD */}
+                <div>
+                  <label className="block text-xs uppercase tracking-ultra-wide text-ink-500 font-semibold mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter your phone number"
+                    className="w-full bg-transparent border-b border-ink-300/60 py-3 text-ink-900 placeholder-ink-400 focus:border-ink-900 focus:outline-none transition-colors text-base font-sans"
+                  />
                 </div>
 
                 {/* MESSAGE FIELD */}

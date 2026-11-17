@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowDown, ArrowUpRight, Infinity } from "lucide-react";
@@ -13,7 +13,7 @@ import { stats } from "../data/content";
 import ProjectCard from "../components/ProjectCard";
 import Home_2ndSection from "./Home_2ndSection";
 import AnimatedCounter from "../components/AnimatedCounter";
-import { useProjectsWithDetails, useSectionImages, useSectionProjectCovers, useClientLogos } from "../hooks/useDrive";
+import { useProjectsWithDetails, useSectionImages, useSectionProjectCovers, useClientLogos, useHeroVideo } from "../hooks/useDrive";
 import { isDriveConfigured, matchProjectByLabel } from "../lib/drive";
 import ResilientImage from "../components/ResilientImage";
 
@@ -50,12 +50,33 @@ const publicationImages = [
 
 export default function Home() {
   const videoRef = useRef(null);
+  const { data: driveHeroVideo } = useHeroVideo();
+  const [videoSrc, setVideoSrc] = useState(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(e => console.log("Video autoplay blocked:", e));
+    if (driveHeroVideo?.src) {
+      setVideoSrc(driveHeroVideo.src);
+    } else {
+      setVideoSrc("/hero.mp4");
     }
-  }, []);
+  }, [driveHeroVideo]);
+
+  const handleVideoError = () => {
+    if (driveHeroVideo?.apiSrc && videoSrc === driveHeroVideo.src) {
+      setVideoSrc(driveHeroVideo.apiSrc);
+    } else if (driveHeroVideo?.downloadSrc && videoSrc === driveHeroVideo.apiSrc) {
+      setVideoSrc(driveHeroVideo.downloadSrc);
+    } else if (videoSrc !== "/hero.mp4") {
+      setVideoSrc("/hero.mp4");
+    }
+  };
+
+  useEffect(() => {
+    if (videoRef.current && videoSrc) {
+      videoRef.current.load();
+      videoRef.current.play().catch((e) => console.log("Video autoplay blocked:", e));
+    }
+  }, [videoSrc]);
 
   // Live Drive data (only trusted once VITE_DRIVE_API_KEY / ROOT_FOLDER_ID are
   // set — see DRIVE_INTEGRATION.md); the hard-coded arrays above stay as the
@@ -98,22 +119,22 @@ export default function Home() {
 
     return driveProjects?.length
       ? driveProjects.slice(0, 6).map((p) => {
-          // First gallery image that isn't the cover (cover may be a "DP"-named
-          // file anywhere in natural order, not necessarily the first image).
-          const hover = p.gallery?.find((img) => img.id !== p.cover?.id) || p.cover;
-          return {
-            id: p.id,
-            title: p.title,
-            location: p.location || p.category,
-            year: p.year,
-            category: p.category,
-            // Card-sized tile — use the smaller thumbnail, not the full 1920px image.
-            image: p.cover?.thumb || "",
-            imageCandidates: p.cover?.thumbCandidates,
-            hoverImage: hover?.thumb || "",
-            hoverImageCandidates: hover?.thumbCandidates,
-          };
-        })
+        // First gallery image that isn't the cover (cover may be a "DP"-named
+        // file anywhere in natural order, not necessarily the first image).
+        const hover = p.gallery?.find((img) => img.id !== p.cover?.id) || p.cover;
+        return {
+          id: p.id,
+          title: p.title,
+          location: p.location || p.category,
+          year: p.year,
+          category: p.category,
+          // Card-sized tile — use the smaller thumbnail, not the full 1920px image.
+          image: p.cover?.thumb || "",
+          imageCandidates: p.cover?.thumbCandidates,
+          hoverImage: hover?.thumb || "",
+          hoverImageCandidates: hover?.thumbCandidates,
+        };
+      })
       : newFeaturedProjects;
   })();
 
@@ -149,7 +170,7 @@ export default function Home() {
   })();
 
   const clientImages = driveReady && driveClientLogos?.length ? driveClientLogos : [];
-  
+
   console.log("[Home] clientImages:", clientImages);
   console.log("[Home] clientImages.length:", clientImages.length);
   console.log("[Home] driveReady:", driveReady);
@@ -165,6 +186,7 @@ export default function Home() {
       <section className="relative h-screen min-h-[600px] w-full overflow-hidden bg-ink-900">
         <div className="absolute inset-0">
           <video
+            key={videoSrc}
             ref={videoRef}
             autoPlay
             loop
@@ -172,7 +194,8 @@ export default function Home() {
             playsInline
             preload="auto"
             className="h-full w-full object-cover"
-            src="/hero.mp4"
+            src={videoSrc || "/hero.mp4"}
+            onError={handleVideoError}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/40" />
         </div>
@@ -344,16 +367,16 @@ export default function Home() {
         >
           {clientImages.length > 0 ? (
             // Drive-based client logos - 4x loop repeat for continuous seamless scroll on mobile
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow opacity-80 hover:opacity-100 transition-all duration-500">
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow transition-all duration-500">
               {[...Array(4)].map((_, loopIdx) => (
-                <div key={loopIdx} className="flex items-center gap-8 sm:gap-12 md:gap-16 pr-8 sm:pr-12 md:pr-16">
+                <div key={loopIdx} className="flex items-center gap-3 sm:gap-5 md:gap-6 pr-3 sm:pr-5 md:pr-6">
                   {clientImages.map((logo, idx) => (
-                    <div key={idx} className="h-12 sm:h-16 md:h-20 w-28 sm:w-36 md:w-44 flex items-center justify-center p-1 flex-shrink-0">
+                    <div key={idx} className="h-12 sm:h-16 md:h-20 w-24 sm:w-28 md:w-32 flex items-center justify-center p-1 flex-shrink-0">
                       <ResilientImage
                         src={logo.src}
                         candidates={logo.srcCandidates}
                         alt={logo.name || "Client logo"}
-                        className="max-h-full max-w-full w-auto h-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                        className="max-h-full max-w-full w-auto h-auto object-contain transition-all duration-300"
                       />
                     </div>
                   ))}
@@ -362,9 +385,9 @@ export default function Home() {
             </div>
           ) : (
             // Fallback to hardcoded logos
-            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow opacity-80 transition-all duration-500">
+            <div className="flex w-max hover:[animation-play-state:paused] animate-marquee-slow transition-all duration-500">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-center gap-12 sm:gap-20 md:gap-32 pr-12 sm:pr-20 md:pr-32">
+                <div key={i} className="flex items-center gap-6 sm:gap-10 md:gap-12 pr-6 sm:pr-10 md:pr-12">
                   <div className="font-sans font-black text-xl sm:text-2xl md:text-3xl tracking-tighter uppercase cursor-default hover:text-ink-900 transition-colors duration-300">
                     MÜDON
                   </div>
