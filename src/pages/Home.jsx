@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowDown, ArrowUpRight, Infinity } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Infinity as InfinityIcon } from "lucide-react";
 import {
   fadeUp,
   staggerContainer,
@@ -395,7 +395,7 @@ export default function Home() {
                     senda
                   </div>
                   <div className="text-ink-800 cursor-default hover:text-black transition-colors duration-300 flex items-center justify-center opacity-80">
-                    <Infinity size={40} strokeWidth={1.5} />
+                    <InfinityIcon size={40} strokeWidth={1.5} />
                   </div>
                   <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-black rounded-full text-white font-sans font-bold text-lg sm:text-xl cursor-default hover:bg-ink-800 transition-colors duration-300">
                     RO
