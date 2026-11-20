@@ -252,16 +252,24 @@ export default function Awards() {
                       />
                     </div>
                     {hasCoverInfo && (
-                      <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                      <div className="mt-3 flex items-start justify-between gap-2.5 sm:gap-3">
                         {item.coverInfo.title && (
-                          <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
+                          <h3 className="flex-1 min-w-0 font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug break-words">
                             {item.coverInfo.title}
                           </h3>
                         )}
                         {(item.coverInfo.line2 || item.coverInfo.line3) && (
-                          <div className="text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:flex-shrink-0 sm:mr-3 md:sm:mr-4">
-                            {item.coverInfo.line2 && <p className="font-bold text-ink-900 tracking-wide">{item.coverInfo.line2}</p>}
-                            {item.coverInfo.line3 && <p className="text-ink-500">{item.coverInfo.line3}</p>}
+                          <div className="max-w-[50%] min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-1 sm:mr-2 md:sm:mr-3 flex-shrink-0">
+                            {item.coverInfo.line2 && (
+                              <p className="font-bold text-ink-900 tracking-wide leading-snug break-words">
+                                {item.coverInfo.line2}
+                              </p>
+                            )}
+                            {item.coverInfo.line3 && (
+                              <p className="text-ink-500 leading-snug break-words">
+                                {item.coverInfo.line3}
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>
@@ -320,16 +328,24 @@ export default function Awards() {
                         />
                       </div>
                       {hasCoverInfo && (
-                        <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                        <div className="mt-3 flex items-start justify-between gap-2.5 sm:gap-3">
                           {item.coverInfo.title && (
-                            <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
+                            <h3 className="flex-1 min-w-0 font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug break-words">
                               {item.coverInfo.title}
                             </h3>
                           )}
                           {(item.coverInfo.line2 || item.coverInfo.line3) && (
-                            <div className="text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:flex-shrink-0 sm:mr-3 md:sm:mr-4">
-                              {item.coverInfo.line2 && <p className="font-bold text-ink-900 tracking-wide">{item.coverInfo.line2}</p>}
-                              {item.coverInfo.line3 && <p className="text-ink-500">{item.coverInfo.line3}</p>}
+                            <div className="max-w-[50%] min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-1 sm:mr-2 md:sm:mr-3 flex-shrink-0">
+                              {item.coverInfo.line2 && (
+                                <p className="font-bold text-ink-900 tracking-wide leading-snug break-words">
+                                  {item.coverInfo.line2}
+                                </p>
+                              )}
+                              {item.coverInfo.line3 && (
+                                <p className="text-ink-500 leading-snug break-words">
+                                  {item.coverInfo.line3}
+                                </p>
+                              )}
                             </div>
                           )}
                         </div>
