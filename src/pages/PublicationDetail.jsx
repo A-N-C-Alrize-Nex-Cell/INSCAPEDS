@@ -125,11 +125,9 @@ export default function PublicationDetail() {
     activeIndex
   );
 
-  // Title and metadata from Drive info.txt or cover.txt (or fallback static metadata)
-  const coverInfo = currentItem?.coverInfo;
+  // Title and metadata from Drive info.txt (cover.txt is strictly for overview cards, not shown here)
   const finalTitle =
     currentItem?.info?.title ||
-    coverInfo?.title ||
     (!driveReady ? metadata?.title : "") ||
     "";
 
@@ -137,16 +135,12 @@ export default function PublicationDetail() {
     title: finalTitle,
     publicationName:
       currentItem?.info?.publication ||
-      coverInfo?.publicationName ||
-      coverInfo?.title ||
       (!driveReady ? metadata.publicationName : ""),
     project:
       currentItem?.info?.project ||
-      coverInfo?.project ||
       (!driveReady ? metadata.project : ""),
     year:
       currentItem?.info?.year ||
-      coverInfo?.year ||
       (!driveReady ? metadata.year : ""),
     issue: currentItem?.info?.issue || (!driveReady ? metadata.issue : ""),
     status: currentItem?.info?.status || (!driveReady ? metadata.status : ""),
@@ -240,66 +234,68 @@ export default function PublicationDetail() {
       className="pt-28 md:pt-36 pb-16 overflow-x-clip"
     >
       {/* HEADER & TWO-COLUMN DESCRIPTION SECTION */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="container-wide text-left mb-6 md:mb-8"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
-          {/* LEFT COLUMN: TITLE & METADATA */}
-          <div className="lg:col-span-4 space-y-2">
-            {finalMetadata.title && (
-              <h1 className="font-sans font-medium text-2xl sm:text-3xl md:text-4xl text-ink-800 leading-[1.1] mb-2 uppercase">
-                {finalMetadata.title}
-              </h1>
-            )}
-            <div className="text-left text-sm sm:text-base text-ink-700 leading-snug space-y-0.5">
-              {finalMetadata.publicationName && (
-                <p>
-                  <span className="font-bold">Publication</span> : {finalMetadata.publicationName}
-                </p>
+      {(finalMetadata.title || finalMetadata.publicationName || finalMetadata.project || finalMetadata.year || finalMetadata.issue || finalMetadata.status || finalMetadata.category || descParagraphs.length > 0) && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="container-wide text-left mb-6 md:mb-8"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
+            {/* LEFT COLUMN: TITLE & METADATA */}
+            <div className="lg:col-span-4 space-y-2">
+              {finalMetadata.title && (
+                <h1 className="font-sans font-medium text-2xl sm:text-3xl md:text-4xl text-ink-800 leading-[1.1] mb-2 uppercase">
+                  {finalMetadata.title}
+                </h1>
               )}
-              {finalMetadata.project && (
-                <p>
-                  <span className="font-bold">Project</span> : {finalMetadata.project}
-                </p>
-              )}
-              {finalMetadata.year && (
-                <p>
-                  <span className="font-bold">Year</span> : {finalMetadata.year}
-                </p>
-              )}
-              {finalMetadata.issue && (
-                <p>
-                  <span className="font-bold">Issue / Vol</span> : {finalMetadata.issue}
-                </p>
-              )}
-              {finalMetadata.status && (
-                <p>
-                  <span className="font-bold">Status</span> : {finalMetadata.status}
-                </p>
-              )}
-              {finalMetadata.category && (
-                <p>
-                  <span className="font-bold">Category</span> : {finalMetadata.category}
-                </p>
-              )}
+              <div className="text-left text-sm sm:text-base text-ink-700 leading-snug space-y-0.5">
+                {finalMetadata.publicationName && (
+                  <p>
+                    <span className="font-bold">Publication</span> : {finalMetadata.publicationName}
+                  </p>
+                )}
+                {finalMetadata.project && (
+                  <p>
+                    <span className="font-bold">Project</span> : {finalMetadata.project}
+                  </p>
+                )}
+                {finalMetadata.year && (
+                  <p>
+                    <span className="font-bold">Year</span> : {finalMetadata.year}
+                  </p>
+                )}
+                {finalMetadata.issue && (
+                  <p>
+                    <span className="font-bold">Issue / Vol</span> : {finalMetadata.issue}
+                  </p>
+                )}
+                {finalMetadata.status && (
+                  <p>
+                    <span className="font-bold">Status</span> : {finalMetadata.status}
+                  </p>
+                )}
+                {finalMetadata.category && (
+                  <p>
+                    <span className="font-bold">Category</span> : {finalMetadata.category}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* RIGHT COLUMN: BALANCED DESCRIPTION IN TWO SEPARATE COLUMNS */}
-          {descParagraphs.length > 0 && (
-            <div className="lg:col-span-8 columns-1 md:columns-2 gap-4 md:gap-6 text-ink-700 text-xs sm:text-[13px] md:text-sm leading-relaxed font-sans tracking-tight pt-0.5 text-justify">
-              {descParagraphs.map((para, i) => (
-                <p key={i} className="whitespace-pre-line break-inside-avoid mb-3 last:mb-0">
-                  {para}
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-      </motion.div>
+            {/* RIGHT COLUMN: BALANCED DESCRIPTION IN TWO SEPARATE COLUMNS */}
+            {descParagraphs.length > 0 && (
+              <div className="lg:col-span-8 columns-1 md:columns-2 gap-4 md:gap-6 text-ink-700 text-xs sm:text-[13px] md:text-sm leading-relaxed font-sans tracking-tight pt-0.5 text-justify">
+                {descParagraphs.map((para, i) => (
+                  <p key={i} className="whitespace-pre-line break-inside-avoid mb-3 last:mb-0">
+                    {para}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
 
       {/* PHOTO GALLERY — 4x4 GRID PATTERN */}
       {galleryItems.length > 0 && (
