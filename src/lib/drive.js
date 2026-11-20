@@ -526,20 +526,40 @@ export function parseCoverInfo(text) {
     return entry.raw;
   });
 
-  // If both a project and a year are present, ensure line2 is the clean project name and line3 is the Year
+  // If both a project and a year are present, ensure line2 is the clean project name and line3 is the Year.
+  // If the project specifies Inscape plus an extra subtitle (e.g. "Inscape new lunch program"),
+  // split so line2 is "Inscape" and projectSub is "new lunch program" (maintained on its own line).
   let line2 = "";
+  let projectSub = "";
   let line3 = "";
-  if (projectVal && yearVal) {
-    line2 = projectVal;
+
+  if (projectVal) {
+    const inscapeSubMatch = projectVal.match(/^inscape[\s:/\-]+(.+)$/i);
+    if (inscapeSubMatch) {
+      line2 = "Inscape";
+      projectSub = inscapeSubMatch[1].trim();
+    } else {
+      line2 = projectVal;
+    }
+  }
+
+  if (yearVal) {
     line3 = `Year: ${yearVal}`;
   } else {
+    line3 = formattedLines.find((l) => l !== projectVal && l !== line2 && l !== projectSub) || "";
+  }
+
+  if (!line2) {
     line2 = formattedLines[0] || "";
+  }
+  if (!line3) {
     line3 = formattedLines[1] || "";
   }
 
   return {
     title: title.trim(),
     line2: line2.trim(),
+    projectSub: projectSub ? projectSub.trim() : "",
     line3: line3.trim(),
     publicationName: title.trim(),
     projectName: projectVal,

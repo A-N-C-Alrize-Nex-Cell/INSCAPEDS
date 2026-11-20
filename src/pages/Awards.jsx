@@ -259,14 +259,40 @@ export default function Awards() {
                           </h3>
                         )}
                         {(item.coverInfo.line2 || item.coverInfo.line3) && (
-                          <div className="max-w-[50%] min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-1 sm:mr-2 md:sm:mr-3 flex-shrink-0">
-                            {item.coverInfo.line2 && (
-                              <p className="font-bold text-ink-900 tracking-wide leading-snug break-words">
-                                {item.coverInfo.line2}
-                              </p>
-                            )}
+                          <div className="min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:mr-2 md:sm:mr-3 flex-shrink-0">
+                            {(() => {
+                              const line2Text = item.coverInfo.line2 || "";
+                              const subText = item.coverInfo.projectSub;
+                              if (!subText && /^inscape[\s:/\-]+(.+)$/i.test(line2Text)) {
+                                const match = line2Text.match(/^inscape[\s:/\-]+(.+)$/i);
+                                return (
+                                  <>
+                                    <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                      Inscape
+                                    </p>
+                                    <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                      {match[1].trim()}
+                                    </p>
+                                  </>
+                                );
+                              }
+                              return (
+                                <>
+                                  {line2Text && (
+                                    <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                      {line2Text}
+                                    </p>
+                                  )}
+                                  {subText && (
+                                    <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                      {subText}
+                                    </p>
+                                  )}
+                                </>
+                              );
+                            })()}
                             {item.coverInfo.line3 && (
-                              <p className="text-ink-500 leading-snug break-words">
+                              <p className="text-ink-500 leading-snug whitespace-nowrap">
                                 {item.coverInfo.line3}
                               </p>
                             )}
@@ -335,14 +361,40 @@ export default function Awards() {
                             </h3>
                           )}
                           {(item.coverInfo.line2 || item.coverInfo.line3) && (
-                            <div className="max-w-[50%] min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-1 sm:mr-2 md:sm:mr-3 flex-shrink-0">
-                              {item.coverInfo.line2 && (
-                                <p className="font-bold text-ink-900 tracking-wide leading-snug break-words">
-                                  {item.coverInfo.line2}
-                                </p>
-                              )}
+                            <div className="min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:mr-2 md:sm:mr-3 flex-shrink-0">
+                              {(() => {
+                                const line2Text = item.coverInfo.line2 || "";
+                                const subText = item.coverInfo.projectSub;
+                                if (!subText && /^inscape[\s:/\-]+(.+)$/i.test(line2Text)) {
+                                  const match = line2Text.match(/^inscape[\s:/\-]+(.+)$/i);
+                                  return (
+                                    <>
+                                      <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                        Inscape
+                                      </p>
+                                      <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                        {match[1].trim()}
+                                      </p>
+                                    </>
+                                  );
+                                }
+                                return (
+                                  <>
+                                    {line2Text && (
+                                      <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                        {line2Text}
+                                      </p>
+                                    )}
+                                    {subText && (
+                                      <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                        {subText}
+                                      </p>
+                                    )}
+                                  </>
+                                );
+                              })()}
                               {item.coverInfo.line3 && (
-                                <p className="text-ink-500 leading-snug break-words">
+                                <p className="text-ink-500 leading-snug whitespace-nowrap">
                                   {item.coverInfo.line3}
                                 </p>
                               )}
