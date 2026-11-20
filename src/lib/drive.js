@@ -1698,8 +1698,9 @@ export async function prefetchAllProjects() {
     console.debug("[drive] prefetching all pages and projects...");
     const start = performance.now();
     
-    // Background promises for page data (Awards, Publications, Contact, About)
+    // Background promises for page data (Hero Video, Awards, Publications, Contact, About)
     const pagePrefetches = [
+      heroVideo().catch(() => null),
       getAwards().catch(() => []),
       getPublications().catch(() => []),
       sectionImages("awards", ["Selected Sketches", "Sketches"]).catch(() => []),
@@ -1861,6 +1862,12 @@ export function getCachedCollageImages() {
 
 /** Synchronously retrieve cached hero video if available. */
 export function getCachedHeroVideo() {
+  const cacheKey = `drive:${CACHE_VERSION}:heroVideo`;
+  const cached = cacheGet(cacheKey);
+  if (cached && cached.src) {
+    return cached;
+  }
+
   const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
   if (!homePageFolderId) return null;
   const kids = getCachedChildren(homePageFolderId);
@@ -1871,14 +1878,20 @@ export function getCachedHeroVideo() {
   if (!files) return null;
   const videoFile = files.find(isVideo);
   if (!videoFile) return null;
-  return {
+  const poster = videoFile.thumbnailLink
+    ? videoFile.thumbnailLink.replace(/=s\d+.*$/, "=s1920")
+    : null;
+  const res = {
     id: videoFile.id,
     name: videoFile.name,
     src: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
     apiSrc: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
     downloadSrc: `https://drive.usercontent.google.com/download?id=${videoFile.id}&export=download&confirm=t`,
     previewSrc: `https://drive.google.com/file/d/${videoFile.id}/preview`,
+    poster,
   };
+  cacheSet(cacheKey, res);
+  return res;
 }
 
 /**
@@ -2058,6 +2071,12 @@ export async function collageImages() {
 export async function heroVideo() {
   if (!isDriveConfigured()) return null;
 
+  const cacheKey = `drive:${CACHE_VERSION}:heroVideo`;
+  const cached = cacheGet(cacheKey);
+  if (cached && cached.src) {
+    return cached;
+  }
+
   try {
     const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
     if (!homePageFolderId) return null;
@@ -2078,15 +2097,22 @@ export async function heroVideo() {
       return null;
     }
 
+    const poster = videoFile.thumbnailLink
+      ? videoFile.thumbnailLink.replace(/=s\d+.*$/, "=s1920")
+      : null;
+
     console.log("[drive] found hero video file:", videoFile.name, videoFile.id);
-    return {
+    const videoObj = {
       id: videoFile.id,
       name: videoFile.name,
       src: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
       apiSrc: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
       downloadSrc: `https://drive.usercontent.google.com/download?id=${videoFile.id}&export=download&confirm=t`,
       previewSrc: `https://drive.google.com/file/d/${videoFile.id}/preview`,
+      poster,
     };
+    cacheSet(cacheKey, videoObj);
+    return videoObj;
   } catch (err) {
     console.error("[drive] failed to load hero video:", err);
     return null;

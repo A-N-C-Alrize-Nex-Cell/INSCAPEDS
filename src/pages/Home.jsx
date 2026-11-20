@@ -55,12 +55,17 @@ export default function Home() {
   const videoRef = useRef(null);
   const { data: driveHeroVideo, loading: isHeroVideoLoading } = useHeroVideo();
   const [videoSrc, setVideoSrc] = useState(() => driveHeroVideo?.src || null);
+  const [videoPoster, setVideoPoster] = useState(() => driveHeroVideo?.poster || null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   useEffect(() => {
     if (driveHeroVideo?.src) {
       setVideoSrc(driveHeroVideo.src);
     } else if (!isHeroVideoLoading && driveHeroVideo === null) {
       setVideoSrc(ALTERNATIVE_HERO_VIDEO);
+    }
+    if (driveHeroVideo?.poster) {
+      setVideoPoster(driveHeroVideo.poster);
     }
   }, [driveHeroVideo, isHeroVideoLoading]);
 
@@ -310,6 +315,20 @@ export default function Home() {
     >
       <section className="relative h-screen min-h-[600px] w-full overflow-hidden bg-ink-900">
         <div className="absolute inset-0">
+          {/* Instant first-frame poster: renders within ~200ms from Google CDN so no black screen appears while the video stream buffers */}
+          {videoPoster && (
+            <img
+              src={videoPoster}
+              alt=""
+              aria-hidden="true"
+              fetchPriority="high"
+              loading="eager"
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out z-[1] ${
+                isVideoLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+              }`}
+            />
+          )}
+
           <video
             key={videoSrc || "hero-drive-video"}
             ref={videoRef}
@@ -318,14 +337,17 @@ export default function Home() {
             muted
             playsInline
             preload="auto"
+            poster={videoPoster || undefined}
+            onLoadedData={() => setIsVideoLoaded(true)}
+            onPlaying={() => setIsVideoLoaded(true)}
             className="h-full w-full object-cover"
             src={videoSrc || undefined}
             onError={handleVideoError}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/40 z-[2]" />
         </div>
 
-        <div className="relative h-full container-wide flex flex-col justify-end pb-44 md:pb-52">
+        <div className="relative h-full container-wide flex flex-col justify-end pb-44 md:pb-52 z-10">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
