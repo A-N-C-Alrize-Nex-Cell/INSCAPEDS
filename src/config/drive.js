@@ -46,8 +46,8 @@ export const DRIVE_CONFIG = {
    */
   rootFolderId: import.meta.env.VITE_DRIVE_ROOT_FOLDER_ID || "",
 
-  /** How long (ms) a folder listing is cached in the browser before re-fetching. 30 seconds for instant updates. */
-  cacheTtlMs: 30 * 1000,
+  /** How long (ms) a folder listing is cached in the browser before re-fetching. 15 minutes for instant page loads; manual Refresh button provides on-demand instant updates. */
+  cacheTtlMs: 15 * 60 * 1000,
 
   /** Where listings are cached: "local" (localStorage), "session", or "none". "local" with 30s TTL = instant loads + always fresh. */
   cacheStore: "local",

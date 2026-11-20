@@ -67,7 +67,8 @@ export function useSectionImages(pageKey, sectionName, opts) {
 export function useSectionProjectCovers(pageKey, sectionName, opts) {
   return useAsync(
     () => drive.sectionProjectCovers(pageKey, sectionName, opts),
-    [pageKey, sectionName, JSON.stringify(opts || null)]
+    [pageKey, sectionName, JSON.stringify(opts || null)],
+    () => drive.getCachedSectionProjectCovers(pageKey, sectionName, opts)
   );
 }
 
@@ -195,7 +196,7 @@ export function useHeroVideo() {
   return useAsync(
     () => drive.heroVideo(),
     [],
-    () => null
+    () => drive.getCachedHeroVideo()
   );
 }
 

@@ -58,9 +58,9 @@ const fallbackPublications = [
 
 export default function Awards() {
   const driveReady = isDriveConfigured();
-  const { data: driveAwards } = useAwards();
-  const { data: driveSketches } = useSectionImages("awards", SKETCH_FOLDER_CANDIDATES);
-  const { data: drivePublications } = usePublications();
+  const { data: driveAwards, loading: isAwardsLoading } = useAwards();
+  const { data: driveSketches, loading: isSketchesLoading } = useSectionImages("awards", SKETCH_FOLDER_CANDIDATES);
+  const { data: drivePublications, loading: isPublicationsLoading } = usePublications();
 
   useEffect(() => {
     const returnTarget = sessionStorage.getItem("return_to_section");
@@ -78,8 +78,8 @@ export default function Awards() {
     }
   }, []);
 
-  const awardList = driveReady && driveAwards && driveAwards.length > 0
-    ? driveAwards.map((award, idx) => {
+  const awardList = driveReady
+    ? (driveAwards || []).map((award, idx) => {
       const meta = getAwardMetadata(award.name || award.title || award.id, idx);
       const resolvedTitle =
         award.coverInfo?.title ||
@@ -129,8 +129,8 @@ export default function Awards() {
       alt: "Architectural sketch",
     }));
 
-  const publications = driveReady && drivePublications && drivePublications.length > 0
-    ? drivePublications.map((pub, idx) => {
+  const publications = driveReady
+    ? (drivePublications || []).map((pub, idx) => {
       const meta = getPublicationMetadata(pub.name || pub.title || pub.id, idx);
       const resolvedTitle =
         pub.coverInfo?.title ||
@@ -222,44 +222,54 @@ export default function Awards() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
-            {awardList.map((item, num) => {
-              const linkTarget = item.id || num;
-              const hasCoverInfo = Boolean(
-                item.coverInfo &&
-                (item.coverInfo.title || item.coverInfo.line2 || item.coverInfo.line3)
-              );
-              return (
-                <Link
-                  key={num}
-                  to={`/awards/award/${linkTarget}`}
-                  className="group block w-full text-left cursor-pointer"
-                >
-                  <div className="aspect-square bg-sand-200 overflow-hidden border border-ink-100 relative">
-                    <ResilientImage
-                      src={item.thumb || item.src}
-                      candidates={item.thumbCandidates || item.candidates}
-                      alt={item.alt || item.title || `Award image ${num + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                  {hasCoverInfo && (
-                    <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
-                      {item.coverInfo.title && (
-                        <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
-                          {item.coverInfo.title}
-                        </h3>
-                      )}
-                      {(item.coverInfo.line2 || item.coverInfo.line3) && (
-                        <div className="text-left text-[10px] sm:text-[11px] text-ink-500 font-sans space-y-0.5 sm:flex-shrink-0">
-                          {item.coverInfo.line2 && <p>{item.coverInfo.line2}</p>}
-                          {item.coverInfo.line3 && <p>{item.coverInfo.line3}</p>}
-                        </div>
-                      )}
+            {driveReady && isAwardsLoading && (!driveAwards || driveAwards.length === 0) ? (
+              [0, 1, 2, 3].map((num) => (
+                <div key={num} className="animate-pulse">
+                  <div className="aspect-square bg-sand-200/80 rounded border border-ink-100/50 mb-3" />
+                  <div className="h-4 w-3/4 bg-sand-300/50 rounded mb-1.5" />
+                  <div className="h-3 w-1/2 bg-sand-300/40 rounded" />
+                </div>
+              ))
+            ) : (
+              awardList.map((item, num) => {
+                const linkTarget = item.id || num;
+                const hasCoverInfo = Boolean(
+                  item.coverInfo &&
+                  (item.coverInfo.title || item.coverInfo.line2 || item.coverInfo.line3)
+                );
+                return (
+                  <Link
+                    key={num}
+                    to={`/awards/award/${linkTarget}`}
+                    className="group block w-full text-left cursor-pointer"
+                  >
+                    <div className="aspect-square bg-sand-200 overflow-hidden border border-ink-100 relative">
+                      <ResilientImage
+                        src={item.thumb || item.src}
+                        candidates={item.thumbCandidates || item.candidates}
+                        alt={item.alt || item.title || `Award image ${num + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
                     </div>
-                  )}
-                </Link>
-              );
-            })}
+                    {hasCoverInfo && (
+                      <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                        {item.coverInfo.title && (
+                          <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
+                            {item.coverInfo.title}
+                          </h3>
+                        )}
+                        {(item.coverInfo.line2 || item.coverInfo.line3) && (
+                          <div className="text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:flex-shrink-0 sm:mr-3 md:sm:mr-4">
+                            {item.coverInfo.line2 && <p className="font-bold text-ink-900 tracking-wide">{item.coverInfo.line2}</p>}
+                            {item.coverInfo.line3 && <p className="text-ink-500">{item.coverInfo.line3}</p>}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })
+            )}
           </div>
         </motion.div>
       </section>
@@ -280,44 +290,54 @@ export default function Awards() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
-              {publications.map((item, idx) => {
-                const linkTarget = item.id || idx;
-                const hasCoverInfo = Boolean(
-                  item.coverInfo &&
-                  (item.coverInfo.title || item.coverInfo.line2 || item.coverInfo.line3)
-                );
-                return (
-                  <Link
-                    key={idx}
-                    to={`/awards/publication/${linkTarget}`}
-                    className="group block w-full text-left cursor-pointer"
-                  >
-                    <div className="aspect-[3/4] bg-sand-200 overflow-hidden border border-ink-100 relative">
-                      <ResilientImage
-                        src={item.thumb || item.src}
-                        candidates={item.thumbCandidates || item.candidates}
-                        alt={item.alt || item.title || "Featured publication"}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    </div>
-                    {hasCoverInfo && (
-                      <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
-                        {item.coverInfo.title && (
-                          <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
-                            {item.coverInfo.title}
-                          </h3>
-                        )}
-                        {(item.coverInfo.line2 || item.coverInfo.line3) && (
-                          <div className="text-left text-[10px] sm:text-[11px] text-ink-500 font-sans space-y-0.5 sm:flex-shrink-0">
-                            {item.coverInfo.line2 && <p>{item.coverInfo.line2}</p>}
-                            {item.coverInfo.line3 && <p>{item.coverInfo.line3}</p>}
-                          </div>
-                        )}
+              {driveReady && isPublicationsLoading && (!drivePublications || drivePublications.length === 0) ? (
+                [0, 1, 2, 3].map((num) => (
+                  <div key={num} className="animate-pulse">
+                    <div className="aspect-[3/4] bg-sand-200/80 rounded border border-ink-100/50 mb-3" />
+                    <div className="h-4 w-3/4 bg-sand-300/50 rounded mb-1.5" />
+                    <div className="h-3 w-1/2 bg-sand-300/40 rounded" />
+                  </div>
+                ))
+              ) : (
+                publications.map((item, idx) => {
+                  const linkTarget = item.id || idx;
+                  const hasCoverInfo = Boolean(
+                    item.coverInfo &&
+                    (item.coverInfo.title || item.coverInfo.line2 || item.coverInfo.line3)
+                  );
+                  return (
+                    <Link
+                      key={idx}
+                      to={`/awards/publication/${linkTarget}`}
+                      className="group block w-full text-left cursor-pointer"
+                    >
+                      <div className="aspect-[3/4] bg-sand-200 overflow-hidden border border-ink-100 relative">
+                        <ResilientImage
+                          src={item.thumb || item.src}
+                          candidates={item.thumbCandidates || item.candidates}
+                          alt={item.alt || item.title || "Featured publication"}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
                       </div>
-                    )}
-                  </Link>
-                );
-              })}
+                      {hasCoverInfo && (
+                        <div className="mt-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                          {item.coverInfo.title && (
+                            <h3 className="font-sans text-[13px] text-ink-900 font-bold uppercase tracking-wide leading-snug">
+                              {item.coverInfo.title}
+                            </h3>
+                          )}
+                          {(item.coverInfo.line2 || item.coverInfo.line3) && (
+                            <div className="text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:flex-shrink-0 sm:mr-3 md:sm:mr-4">
+                              {item.coverInfo.line2 && <p className="font-bold text-ink-900 tracking-wide">{item.coverInfo.line2}</p>}
+                              {item.coverInfo.line3 && <p className="text-ink-500">{item.coverInfo.line3}</p>}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </Link>
+                  );
+                })
+              )}
             </div>
           </motion.div>
         </div>

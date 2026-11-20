@@ -31,9 +31,9 @@ export default function About() {
   const { data: bentoImages } = useSectionImages("about", "Bento Grid_Last Section");
   const { data: driveTeamMembers } = useTeamMembers();
 
-  const introSrc = (driveReady && introImages?.[0]?.src) || studioImage;
+  const introSrc = (driveReady && introImages?.[0]?.src) || (!driveReady ? studioImage : "");
   const introCandidates = driveReady && introImages?.[0]?.srcCandidates;
-  const founderSrc = (driveReady && founderImages?.[0]?.src) || founderImage;
+  const founderSrc = (driveReady && founderImages?.[0]?.src) || (!driveReady ? founderImage : "");
   const founderCandidates = driveReady && founderImages?.[0]?.srcCandidates;
 
   // Sourced from About/Bento Grid_Last Section Drive folder (or fallback slots)
@@ -45,13 +45,15 @@ export default function About() {
       thumbCandidates: img.thumbCandidates,
       alt: img.alt || "Inscape studio",
     }))
-    : Array.from({ length: 8 }, (_, i) => ({
-      src: studioImage,
-      thumb: studioImage,
-      candidates: [studioImage],
-      thumbCandidates: [studioImage],
-      alt: `Inscape studio ${i + 1}`,
-    }));
+    : !driveReady
+      ? Array.from({ length: 8 }, (_, i) => ({
+        src: studioImage,
+        thumb: studioImage,
+        candidates: [studioImage],
+        thumbCandidates: [studioImage],
+        alt: `Inscape studio ${i + 1}`,
+      }))
+      : [];
 
   // Use Drive team members if available, otherwise fallback to static data
   const displayTeam = (driveReady && driveTeamMembers && driveTeamMembers.length > 0)

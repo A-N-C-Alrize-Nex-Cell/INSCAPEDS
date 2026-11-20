@@ -18,7 +18,7 @@ export default function Home_2ndSection() {
   const [isVisible, setIsVisible] = useState(false);
 
   const driveReady = isDriveConfigured();
-  const { data: collageImages } = useCollageImages();
+  const { data: collageImages, loading: isCollageLoading } = useCollageImages();
 
   // If Drive has 8 or more images, activate the 8-image 5-column pattern;
   // otherwise, default to the 6-image 4-column pattern.
@@ -26,10 +26,11 @@ export default function Home_2ndSection() {
 
   // 8 slots defined: slots 0-5 use Drive or fallback; slots 6-7 (7th & 8th images)
   // only load when the user adds them in Drive, avoiding unwanted placeholder duplicates.
+  // When Drive is configured, never flash the fallback stock image while loading.
   const collageSlots = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
     const img = driveReady && collageImages?.[i];
     return {
-      src: img?.src || (i < 6 ? COLLAGE_FALLBACKS[i % COLLAGE_FALLBACKS.length] : ""),
+      src: img?.src || (i < 6 && !driveReady ? COLLAGE_FALLBACKS[i % COLLAGE_FALLBACKS.length] : ""),
       candidates: img?.srcCandidates,
     };
   });

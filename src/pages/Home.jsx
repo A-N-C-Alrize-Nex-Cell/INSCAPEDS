@@ -48,26 +48,27 @@ const publicationImages = [
   "https://images.unsplash.com/photo-1513001900722-370f803f498d?auto=format&fit=crop&w=400&q=80",
 ];
 
+// Alternative fallback video in code file (used only if Drive video is unavailable)
+const ALTERNATIVE_HERO_VIDEO = "/hero.mp4";
+
 export default function Home() {
   const videoRef = useRef(null);
-  const { data: driveHeroVideo } = useHeroVideo();
-  const [videoSrc, setVideoSrc] = useState(null);
+  const { data: driveHeroVideo, loading: isHeroVideoLoading } = useHeroVideo();
+  const [videoSrc, setVideoSrc] = useState(() => driveHeroVideo?.src || null);
 
   useEffect(() => {
     if (driveHeroVideo?.src) {
       setVideoSrc(driveHeroVideo.src);
-    } else {
-      setVideoSrc("/hero.mp4");
+    } else if (!isHeroVideoLoading && driveHeroVideo === null) {
+      setVideoSrc(ALTERNATIVE_HERO_VIDEO);
     }
-  }, [driveHeroVideo]);
+  }, [driveHeroVideo, isHeroVideoLoading]);
 
   const handleVideoError = () => {
-    if (driveHeroVideo?.apiSrc && videoSrc === driveHeroVideo.src) {
-      setVideoSrc(driveHeroVideo.apiSrc);
-    } else if (driveHeroVideo?.downloadSrc && videoSrc === driveHeroVideo.apiSrc) {
+    if (driveHeroVideo?.downloadSrc && videoSrc === driveHeroVideo.src) {
       setVideoSrc(driveHeroVideo.downloadSrc);
-    } else if (videoSrc !== "/hero.mp4") {
-      setVideoSrc("/hero.mp4");
+    } else if (videoSrc !== ALTERNATIVE_HERO_VIDEO) {
+      setVideoSrc(ALTERNATIVE_HERO_VIDEO);
     }
   };
 
@@ -78,19 +79,127 @@ export default function Home() {
     }
   }, [videoSrc]);
 
+  // Mobile touch swipe & drag for marquee publications
+  const marqueeTrackRef = useRef(null);
+  const touchState = useRef({
+    startX: 0,
+    startY: 0,
+    startTranslateX: 0,
+    isSwiping: false,
+    intentDetermined: false,
+    halfWidth: 0,
+  });
+
+  useEffect(() => {
+    const track = marqueeTrackRef.current;
+    if (!track) return;
+
+    const onTouchStart = (e) => {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      const computed = window.getComputedStyle(track);
+      const matrix = new DOMMatrixReadOnly(computed.transform);
+      const currentX = matrix.m41 || 0;
+      const halfWidth = track.scrollWidth / 2 || 1;
+
+      touchState.current = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        startTranslateX: currentX,
+        isSwiping: false,
+        intentDetermined: false,
+        halfWidth,
+      };
+
+      track.style.animationPlayState = "paused";
+    };
+
+    const onTouchMove = (e) => {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - touchState.current.startX;
+      const dy = touch.clientY - touchState.current.startY;
+
+      if (!touchState.current.intentDetermined) {
+        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+          touchState.current.intentDetermined = true;
+          touchState.current.isSwiping = Math.abs(dx) > Math.abs(dy);
+          if (touchState.current.isSwiping) {
+            track.style.animation = "none";
+          }
+        }
+      }
+
+      if (touchState.current.isSwiping) {
+        if (e.cancelable) e.preventDefault();
+
+        let newX = touchState.current.startTranslateX + dx;
+        const halfWidth = touchState.current.halfWidth;
+
+        if (halfWidth > 0) {
+          while (newX > 0) newX -= halfWidth;
+          while (newX < -halfWidth) newX += halfWidth;
+        }
+
+        track.style.transform = `translateX(${newX}px)`;
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (touchState.current.isSwiping) {
+        const computed = window.getComputedStyle(track);
+        const matrix = new DOMMatrixReadOnly(computed.transform);
+        const currentX = matrix.m41 || 0;
+        const halfWidth = touchState.current.halfWidth || (track.scrollWidth / 2);
+
+        let progress = 0;
+        if (halfWidth > 0) {
+          let normalizedX = currentX % halfWidth;
+          if (normalizedX > 0) normalizedX -= halfWidth;
+          progress = Math.abs(normalizedX) / halfWidth;
+        }
+
+        const duration = 40;
+        const delay = -(progress * duration);
+
+        track.style.animation = `marquee ${duration}s linear infinite`;
+        track.style.animationDelay = `${delay}s`;
+        track.style.animationPlayState = "running";
+        track.style.transform = "";
+      } else {
+        track.style.animationPlayState = "running";
+      }
+
+      touchState.current.isSwiping = false;
+      touchState.current.intentDetermined = false;
+    };
+
+    track.addEventListener("touchstart", onTouchStart, { passive: true });
+    track.addEventListener("touchmove", onTouchMove, { passive: false });
+    track.addEventListener("touchend", onTouchEnd, { passive: true });
+    track.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
+    return () => {
+      track.removeEventListener("touchstart", onTouchStart);
+      track.removeEventListener("touchmove", onTouchMove);
+      track.removeEventListener("touchend", onTouchEnd);
+      track.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, []);
+
   // Live Drive data (only trusted once VITE_DRIVE_API_KEY / ROOT_FOLDER_ID are
   // set — see DRIVE_INTEGRATION.md); the hard-coded arrays above stay as the
   // fallback so the homepage keeps working before Drive is configured.
   const driveReady = isDriveConfigured();
-  const { data: driveProjects } = useProjectsWithDetails("All");
-  const { data: drivePublications } = useSectionImages("home", "Awards and Publication");
+  const { data: driveProjects, loading: isProjectsLoading } = useProjectsWithDetails("All");
+  const { data: drivePublications, loading: isPubsLoading } = useSectionImages("home", "Awards and Publication");
   const { data: driveClientLogos } = useClientLogos();
   // Selected Work(3rd Section) holds one project subfolder per featured
   // card (e.g. "01_HSB Joypur") — each subfolder's cover image is matched
   // back to the real project by name (fuzzy, since the two are typed by
   // hand in different places) so the card still links to that project's
   // real detail page.
-  const { data: driveSelectedWork } = useSectionProjectCovers("home", "Selected Work(3rd Section)");
+  const { data: driveSelectedWork, loading: isSelectedWorkLoading } = useSectionProjectCovers("home", "Selected Work(3rd Section)");
 
   const featuredProjects = (() => {
     if (!driveReady) return newFeaturedProjects;
@@ -117,8 +226,8 @@ export default function Home() {
       }).filter((p) => p.id); // drop slots that couldn't be matched to a real project (would otherwise link nowhere)
     }
 
-    return driveProjects?.length
-      ? driveProjects.slice(0, 6).map((p) => {
+    if (driveProjects?.length) {
+      return driveProjects.slice(0, 6).map((p) => {
         // First gallery image that isn't the cover (cover may be a "DP"-named
         // file anywhere in natural order, not necessarily the first image).
         const hover = p.gallery?.find((img) => img.id !== p.cover?.id) || p.cover;
@@ -134,16 +243,32 @@ export default function Home() {
           hoverImage: hover?.thumb || "",
           hoverImageCandidates: hover?.thumbCandidates,
         };
-      })
-      : newFeaturedProjects;
+      });
+    }
+
+    // Only fall back to bundled mocks if Drive is finished loading with 0 results
+    if (!isSelectedWorkLoading && !isProjectsLoading) {
+      return newFeaturedProjects;
+    }
+
+    // While Drive data is loading, return empty list so mock sketches do NOT flash
+    return [];
   })();
 
   // Interleave Publication (P_n) and Award (A_n) images P_1, A_1, P_2, A_2, …
   // instead of Drive's plain alphabetical order (which would group all A_*
   // before all P_*).
   const marqueePublications = (() => {
-    if (!driveReady || !drivePublications?.length) {
+    if (!driveReady) {
       return publicationImages.map((src) => ({ src, candidates: [src] }));
+    }
+    if (!drivePublications?.length) {
+      // Only fall back to stock photos if Drive finished loading and has 0 images
+      if (!isPubsLoading && drivePublications !== null) {
+        return publicationImages.map((src) => ({ src, candidates: [src] }));
+      }
+      // While loading, return empty list so stock Unsplash photos do NOT flash
+      return [];
     }
     const parse = (name) => {
       const m = String(name || "").match(/^([pa])_?(\d+)/i);
@@ -186,7 +311,7 @@ export default function Home() {
       <section className="relative h-screen min-h-[600px] w-full overflow-hidden bg-ink-900">
         <div className="absolute inset-0">
           <video
-            key={videoSrc}
+            key={videoSrc || "hero-drive-video"}
             ref={videoRef}
             autoPlay
             loop
@@ -194,7 +319,7 @@ export default function Home() {
             playsInline
             preload="auto"
             className="h-full w-full object-cover"
-            src={videoSrc || "/hero.mp4"}
+            src={videoSrc || undefined}
             onError={handleVideoError}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/40" />
@@ -265,9 +390,19 @@ export default function Home() {
             viewport={{ once: true, margin: "-80px" }}
             className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-0 mt-8"
           >
-            {featuredProjects.map((project, i) => (
-              <ProjectCard key={project.id} project={project} index={i} />
-            ))}
+            {driveReady && (isSelectedWorkLoading || isProjectsLoading) && (!featuredProjects || featuredProjects.length === 0) ? (
+              [0, 1, 2, 3].map((i) => (
+                <div key={i} className="mb-12 animate-pulse">
+                  <div className="aspect-[16/10] bg-sand-300/40 rounded-sm mb-4 border border-sand-300/30" />
+                  <div className="h-6 w-2/3 bg-sand-300/40 rounded mb-2" />
+                  <div className="h-4 w-1/3 bg-sand-300/30 rounded" />
+                </div>
+              ))
+            ) : (
+              featuredProjects.map((project, i) => (
+                <ProjectCard key={project.id} project={project} index={i} />
+              ))
+            )}
           </motion.div>
 
           <div className="mt-12 md:hidden">
@@ -300,15 +435,34 @@ export default function Home() {
           </div>
 
           {/* Marquee container */}
-          <div className="relative w-full overflow-hidden group mb-10 md:mb-12">
+          <div className="relative w-full overflow-hidden group mb-10 md:mb-12 select-none" style={{ touchAction: "pan-y" }}>
             <div className="container-wide">
-              <div className="flex w-max gap-4 md:gap-6 hover:[animation-play-state:paused] animate-marquee">
-                {[...marqueePublications, ...marqueePublications, ...marqueePublications, ...marqueePublications].map((img, idx) => (
-                  <div key={idx} className="w-48 md:w-64 h-64 md:h-72 flex-shrink-0 overflow-hidden">
-                    <ResilientImage src={img.src} candidates={img.candidates} alt="Publication" className="w-full h-full object-contain grayscale hover:grayscale-0 transition-all duration-500 ease-smooth" loading="lazy" />
-                  </div>
-                ))}
-              </div>
+              {driveReady && (isPubsLoading || drivePublications === null) && marqueePublications.length === 0 ? (
+                <div className="flex w-max gap-4 md:gap-6 animate-pulse">
+                  {[...Array(6)].map((_, idx) => (
+                    <div key={idx} className="w-48 md:w-64 h-64 md:h-72 flex-shrink-0 bg-sand-300/40 rounded-sm border border-sand-300/30" />
+                  ))}
+                </div>
+              ) : marqueePublications.length > 0 ? (
+                <div
+                  ref={marqueeTrackRef}
+                  className="flex w-max gap-4 md:gap-6 hover:[animation-play-state:paused] animate-marquee cursor-grab active:cursor-grabbing select-none"
+                  style={{ touchAction: "pan-y" }}
+                >
+                  {[...marqueePublications, ...marqueePublications, ...marqueePublications, ...marqueePublications].map((img, idx) => (
+                    <div key={idx} className="w-48 md:w-64 h-64 md:h-72 flex-shrink-0 overflow-hidden pointer-events-none select-none">
+                      <ResilientImage
+                        src={img.src}
+                        candidates={img.candidates}
+                        alt="Publication"
+                        className="w-full h-full object-contain transition-all duration-500 ease-smooth pointer-events-none"
+                        loading="lazy"
+                        draggable={false}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
 

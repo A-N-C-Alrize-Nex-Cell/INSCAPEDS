@@ -125,15 +125,29 @@ export default function PublicationDetail() {
     activeIndex
   );
 
-  // Title is ONLY displayed if the client manually adds it in info.txt.
-  // Folder names (e.g. "01", "02") are NOT used as title headings on this page.
-  const finalTitle = currentItem?.info?.title || (!driveReady ? metadata?.title : "") || "";
+  // Title and metadata from Drive info.txt or cover.txt (or fallback static metadata)
+  const coverInfo = currentItem?.coverInfo;
+  const finalTitle =
+    currentItem?.info?.title ||
+    coverInfo?.title ||
+    (!driveReady ? metadata?.title : "") ||
+    "";
 
-  // Only show metadata and description when client provides them in info.txt on Drive
-  // (Format and styling are preserved; dummy text is removed until info.txt is dropped)
   const finalMetadata = {
     title: finalTitle,
-    publicationName: currentItem?.info?.publication || (!driveReady ? metadata.publicationName : ""),
+    publicationName:
+      currentItem?.info?.publication ||
+      coverInfo?.publicationName ||
+      coverInfo?.title ||
+      (!driveReady ? metadata.publicationName : ""),
+    project:
+      currentItem?.info?.project ||
+      coverInfo?.project ||
+      (!driveReady ? metadata.project : ""),
+    year:
+      currentItem?.info?.year ||
+      coverInfo?.year ||
+      (!driveReady ? metadata.year : ""),
     issue: currentItem?.info?.issue || (!driveReady ? metadata.issue : ""),
     status: currentItem?.info?.status || (!driveReady ? metadata.status : ""),
     category: currentItem?.info?.category || (!driveReady ? metadata.category : ""),
@@ -244,6 +258,16 @@ export default function PublicationDetail() {
               {finalMetadata.publicationName && (
                 <p>
                   <span className="font-bold">Publication</span> : {finalMetadata.publicationName}
+                </p>
+              )}
+              {finalMetadata.project && (
+                <p>
+                  <span className="font-bold">Project</span> : {finalMetadata.project}
+                </p>
+              )}
+              {finalMetadata.year && (
+                <p>
+                  <span className="font-bold">Year</span> : {finalMetadata.year}
                 </p>
               )}
               {finalMetadata.issue && (

@@ -16,7 +16,7 @@ import { getProjectMetadata } from "../data/projectMetadata";
 
 const API = "https://www.googleapis.com/drive/v3/files";
 const FOLDER_MIME = "application/vnd.google-apps.folder";
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v4";
 
 /* -------------------------------------------------------------------------- */
 /* cache                                                                      */
@@ -63,25 +63,31 @@ function cacheSet(key, value) {
   }
 }
 
-/** Wipe every cached Drive listing (e.g. for a manual "refresh" control). */
+const inflight = new Map();
+const inflightText = new Map();
+
+/** Wipe every cached Drive listing across all storage and versions (e.g. for a manual "refresh" control). */
 export function clearDriveCache() {
-  const store = backend();
-  if (!store) return;
   try {
-    const prefix = `drive:${CACHE_VERSION}:`;
-    Object.keys(store)
-      .filter((k) => k.startsWith(prefix))
-      .forEach((k) => store.removeItem(k));
-  } catch {
-    /* ignore */
+    inflight.clear();
+    inflightText.clear();
+    if (typeof window !== "undefined") {
+      [window.localStorage, window.sessionStorage].forEach((store) => {
+        if (!store) return;
+        Object.keys(store)
+          .filter((k) => k.startsWith("drive:"))
+          .forEach((k) => store.removeItem(k));
+      });
+      console.log("[drive] All drive cache cleared.");
+    }
+  } catch (err) {
+    console.error("[drive] Error clearing drive cache:", err);
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* low-level: list a folder's direct children                                 */
-/* -------------------------------------------------------------------------- */
-
-const inflight = new Map();
+if (typeof window !== "undefined") {
+  window.clearDriveCache = clearDriveCache;
+}
 
 /**
  * List the direct children (files + folders) of a Drive folder.
@@ -226,33 +232,48 @@ async function fetchFileText(fileId) {
     return cached;
   }
 
-  // Robust candidate download URLs for public files:
-  // 1. Google Drive API files.get endpoint with alt=media (works cleanly with CORS in browser)
-  // 2. Direct usercontent CDN fallback
-  // 3. Google Drive /uc download endpoint fallback
-  const urls = [
-    DRIVE_CONFIG.apiKey ? `${API}/${fileId}?alt=media&key=${DRIVE_CONFIG.apiKey}&supportsAllDrives=true` : null,
-    `https://drive.usercontent.google.com/download?id=${fileId}&export=download`,
-    `https://drive.google.com/uc?export=download&id=${fileId}`,
-  ].filter(Boolean);
-
-  for (const url of urls) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const text = await res.text();
-      // Ensure we received valid text and not an HTML error / challenge page
-      const trimmed = text.trim();
-      if (trimmed && !trimmed.startsWith("<!DOCTYPE") && !trimmed.startsWith("<html")) {
-        cacheSet(cacheKey, text);
-        return text;
-      }
-    } catch {
-      // try next candidate URL
-    }
+  if (inflightText.has(fileId)) {
+    return inflightText.get(fileId);
   }
 
-  return "";
+  const p = (async () => {
+    // Robust candidate download URLs for public files:
+    // 1. Google Drive API files.get endpoint with alt=media (works cleanly with CORS in browser)
+    // 2. Direct usercontent CDN fallback
+    // 3. Google Drive /uc download endpoint fallback
+    const urls = [
+      DRIVE_CONFIG.apiKey ? `${API}/${fileId}?alt=media&key=${DRIVE_CONFIG.apiKey}&supportsAllDrives=true` : null,
+      `https://drive.usercontent.google.com/download?id=${fileId}&export=download`,
+      `https://drive.google.com/uc?export=download&id=${fileId}`,
+    ].filter(Boolean);
+
+    for (const url of urls) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) continue;
+        const text = await res.text();
+        // Ensure we received valid text and not an HTML error / challenge page
+        const trimmed = text.trim();
+        if (trimmed && !trimmed.startsWith("<!DOCTYPE") && !trimmed.startsWith("<html")) {
+          cacheSet(cacheKey, text);
+          return text;
+        }
+      } catch {
+        // try next candidate URL
+      }
+    }
+    return "";
+  })();
+
+  inflightText.set(fileId, p);
+  try {
+    return await p;
+  } finally {
+    inflightText.delete(fileId);
+  }
 }
 
 /**
@@ -301,6 +322,8 @@ export function parsePublicationInfo(text) {
   const info = {
     title: "",
     publication: "",
+    project: "",
+    year: "",
     issue: "",
     status: "",
     category: "",
@@ -317,13 +340,15 @@ export function parsePublicationInfo(text) {
     const m =
       !inDescription &&
       line.match(
-        /^(title|publication|publication\s*name|issue|issue\s*\/\s*vol|vol|volume|status|category|description)\s*:\s*(.*)$/i
+        /^(title|publication|publication\s*name|project|project\s*name|publisher|publisher\s*name|year|date|issue|issue\s*\/\s*vol|vol|volume|status|category|description)\s*:\s*(.*)$/i
       );
     if (m) {
       const rawKey = m[1].toLowerCase().replace(/\s+/g, "");
       let key = "description";
       if (rawKey.includes("title")) key = "title";
       else if (rawKey.includes("publication")) key = "publication";
+      else if (rawKey.includes("project") || rawKey.includes("publisher")) key = "project";
+      else if (rawKey.includes("year") || rawKey.includes("date")) key = "year";
       else if (rawKey.includes("issue") || rawKey.includes("vol")) key = "issue";
       else if (rawKey.includes("status")) key = "status";
       else if (rawKey.includes("category")) key = "category";
@@ -401,14 +426,37 @@ export function parseAwardInfo(text) {
  *
  * Implements the 3-point format under the cover image:
  *   - Point 1 (left side): Publication name / Award name / Title
- *   - Point 2 (right side top): Publisher name / Status / Category / etc.
+ *   - Point 2 (right side top): Project name / Category / etc.
  *   - Point 3 (right side bottom): Year / Date / etc.
  *
- * Example:
+ * Pattern:
  *   Publication name: Happy New Year
- *   Publisher name: inscape
+ *   Project name: inscape
  *   Year: 2026
+ *
+ * Format of text file in Drive:
+ *   Publication name: Happy New Year
+ *   Project name: Inscape
+ *   Year: 2026
+ *
+ * Presentation under image:
+ *   - Point 1 (left side): Title (from Publication name / Award name)
+ *   - Point 2 (right side top): Clean project name without "Project name:" label (e.g. "Inscape")
+ *   - Point 3 (right side bottom): Year (e.g. "Year: 2026")
  */
+function formatProjectName(val) {
+  if (!val) return "";
+  const s = String(val).trim();
+  if (!s) return "";
+  // If the project word is "inscape" (case-insensitive), display as "Inscape"
+  if (s.toLowerCase() === "inscape") return "Inscape";
+  // If the word starts with lowercase, capitalize it
+  if (/^[a-z]/.test(s)) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  return s;
+}
+
 export function parseCoverInfo(text) {
   if (!text) return null;
   const lines = String(text)
@@ -429,10 +477,16 @@ export function parseCoverInfo(text) {
     return { key: "", val: line, raw: line };
   });
 
-  // Identify point 1 (left side title)
+  // Identify point 1 (left side title) — prioritize publication or award name/title over project name
   let titleEntry = parsed.find((p) =>
-    /^(publication\s*name|publication|award\s*name|award|honor|title|project\s*name|name)$/i.test(p.key)
+    /^(publication\s*name|publication|award\s*name|award|honor|title)$/i.test(p.key)
   );
+
+  if (!titleEntry) {
+    titleEntry = parsed.find((p) =>
+      /^(name)$/i.test(p.key)
+    );
+  }
 
   if (!titleEntry) {
     titleEntry = parsed[0];
@@ -443,20 +497,54 @@ export function parseCoverInfo(text) {
   // Remaining lines for right-side points (point 2 and point 3)
   const otherLines = parsed.filter((p) => p !== titleEntry);
 
+  let projectVal = "";
+  let yearVal = "";
+
+  const formattedLines = otherLines.map((entry) => {
+    // If line specifies Project name (or previous pattern Publisher name):
+    // Display ONLY the clean project name (e.g. "Inscape"), omitting the "Project name:" label prefix
+    const projectMatch = entry.raw.match(/^(?:project\s*name|project|publisher\s*name|publisher)\s*:\s*(.*)$/i);
+    if (projectMatch || /^(project(\s*name)?|publisher(\s*name)?)$/i.test(entry.key)) {
+      const rawVal = projectMatch ? projectMatch[1] : entry.val;
+      const clean = formatProjectName(rawVal);
+      projectVal = clean;
+      return clean;
+    }
+
+    const yearMatch = entry.raw.match(/^(?:year|date)\s*:\s*(.*)$/i);
+    if (yearMatch || /^(year|date)$/i.test(entry.key)) {
+      const rawVal = yearMatch ? yearMatch[1] : entry.val;
+      yearVal = rawVal.trim();
+      return `Year: ${yearVal}`;
+    }
+
+    if (/^\d{4}$/.test(entry.raw.trim())) {
+      yearVal = entry.raw.trim();
+      return `Year: ${yearVal}`;
+    }
+
+    return entry.raw;
+  });
+
+  // If both a project and a year are present, ensure line2 is the clean project name and line3 is the Year
   let line2 = "";
   let line3 = "";
-
-  if (otherLines.length > 0) {
-    line2 = otherLines[0].raw;
-  }
-  if (otherLines.length > 1) {
-    line3 = otherLines[1].raw;
+  if (projectVal && yearVal) {
+    line2 = projectVal;
+    line3 = `Year: ${yearVal}`;
+  } else {
+    line2 = formattedLines[0] || "";
+    line3 = formattedLines[1] || "";
   }
 
   return {
     title: title.trim(),
     line2: line2.trim(),
     line3: line3.trim(),
+    publicationName: title.trim(),
+    projectName: projectVal,
+    project: projectVal,
+    year: yearVal,
     raw: text,
   };
 }
@@ -679,6 +767,46 @@ export async function sectionProjectCovers(pageKey, sectionName, opts) {
   );
 }
 
+/** Synchronously retrieve cached section project covers if available. */
+export function getCachedSectionProjectCovers(pageKey, sectionName, opts) {
+  const pid = getCachedPageFolderId(pageKey);
+  if (!pid) return null;
+  const names = Array.isArray(sectionName) ? sectionName : [sectionName];
+  const kids = getCachedChildren(pid);
+  if (!kids) return null;
+
+  let sectionFolder = null;
+  for (const name of names) {
+    const target = String(name).trim().toLowerCase();
+    sectionFolder = kids.find(
+      (f) =>
+        isFolder(f) &&
+        (f.name.trim().toLowerCase() === target || parseOrdered(f.name).label.toLowerCase() === target)
+    );
+    if (sectionFolder) break;
+  }
+  if (!sectionFolder) return null;
+
+  const projectFolders = (getCachedChildren(sectionFolder.id) || []).filter(isFolder);
+  if (!projectFolders.length) return null;
+
+  const ordered = projectFolders
+    .map((f) => ({ folder: f, ...parseOrdered(f.name) }))
+    .sort((a, b) => a.order - b.order);
+
+  const results = [];
+  for (const { folder, label } of ordered) {
+    const rawFiles = getCachedChildren(folder.id);
+    if (!rawFiles) return null;
+    const images = rawFiles.filter(isImage).map((f) => toImage(f, opts));
+    const monochrome = images.find((img) => /monochrome/i.test(img.name));
+    const coverImg = monochrome || pickCover(images);
+    const real = images.find((img) => img !== coverImg) || coverImg;
+    results.push({ label, image: coverImg, hoverImage: real });
+  }
+  return results.length ? results : null;
+}
+
 /**
  * Every section subfolder of a page, ordered by numeric prefix.
  * @returns {Promise<Array<{ name: string, key: string, order: number, images: DriveImage[] }>>}
@@ -750,6 +878,12 @@ export function isPublicationImage(f) {
  * Exclusively accepts: .jpg, .jpeg, .png, .webp
  */
 export async function getPublications(opts = {}) {
+  const cacheKey = `drive:${CACHE_VERSION}:full_publications:${JSON.stringify(opts || {})}`;
+  const cached = cacheGet(cacheKey);
+  if (cached && Array.isArray(cached) && cached.length > 0) {
+    return cached;
+  }
+
   const pid = await pageFolderId("awards");
   if (!pid) return [];
   const kids = await listChildren(pid);
@@ -789,20 +923,17 @@ export async function getPublications(opts = {}) {
         const infoFile = innerKids.find(
           (f) => !isFolder(f) && INFO_FILE_NAMES.includes(f.name.toLowerCase())
         );
-        let info = null;
-        if (infoFile) {
-          const text = await fetchFileText(infoFile.id);
-          info = parsePublicationInfo(text);
-        }
-
         const coverTextFile = innerKids.find(
           (f) => !isFolder(f) && COVER_FILE_NAMES.includes(f.name.trim().toLowerCase())
         );
-        let coverInfo = null;
-        if (coverTextFile) {
-          const text = await fetchFileText(coverTextFile.id);
-          coverInfo = parseCoverInfo(text);
-        }
+
+        // Fetch text files in parallel
+        const [infoText, coverText] = await Promise.all([
+          infoFile ? fetchFileText(infoFile.id) : Promise.resolve(""),
+          coverTextFile ? fetchFileText(coverTextFile.id) : Promise.resolve(""),
+        ]);
+        const info = infoText ? parsePublicationInfo(infoText) : null;
+        const coverInfo = coverText ? parseCoverInfo(coverText) : null;
 
         const cover = images.find((img) => /cover/i.test(img.name)) || images[0] || null;
         const galleryImages = images.filter((img) => {
@@ -832,11 +963,15 @@ export async function getPublications(opts = {}) {
       })
     );
 
-    return publications.filter((p) => p.cover || p.images.length > 0);
+    const result = publications.filter((p) => p.cover || p.images.length > 0);
+    if (result.length > 0) {
+      cacheSet(cacheKey, result);
+    }
+    return result;
   } else {
     // Flat files directly in "Featured Publication"
     const images = pubChildren.filter(isPublicationImage).map((f) => toImage(f, opts));
-    return await Promise.all(
+    const result = await Promise.all(
       images.map(async (img, idx) => {
         const base = img.name.replace(/\.[^.]+$/, "").trim().toLowerCase();
         const coverTextFile = pubChildren.find(
@@ -871,11 +1006,21 @@ export async function getPublications(opts = {}) {
         };
       })
     );
+    if (result.length > 0) {
+      cacheSet(cacheKey, result);
+    }
+    return result;
   }
 }
 
 /** Synchronous cached lookup for publications. */
 export function getCachedPublications(opts) {
+  const cacheKey = `drive:${CACHE_VERSION}:full_publications:${JSON.stringify(opts || {})}`;
+  const cached = cacheGet(cacheKey);
+  if (cached && Array.isArray(cached) && cached.length > 0) {
+    return cached;
+  }
+
   const pid = getCachedPageFolderId("awards");
   if (!pid) return null;
   const kids = getCachedChildren(pid);
@@ -1046,6 +1191,12 @@ export function isAwardImage(f) {
  * Exclusively accepts: .jpg, .jpeg, .png, .webp
  */
 export async function getAwards(opts = {}) {
+  const cacheKey = `drive:${CACHE_VERSION}:full_awards:${JSON.stringify(opts || {})}`;
+  const cached = cacheGet(cacheKey);
+  if (cached && Array.isArray(cached) && cached.length > 0) {
+    return cached;
+  }
+
   const pid = await pageFolderId("awards");
   if (!pid) return [];
   const kids = await listChildren(pid);
@@ -1085,20 +1236,17 @@ export async function getAwards(opts = {}) {
         const infoFile = innerKids.find(
           (f) => !isFolder(f) && INFO_FILE_NAMES.includes(f.name.toLowerCase())
         );
-        let info = null;
-        if (infoFile) {
-          const text = await fetchFileText(infoFile.id);
-          info = parseAwardInfo(text);
-        }
-
         const coverTextFile = innerKids.find(
           (f) => !isFolder(f) && COVER_FILE_NAMES.includes(f.name.trim().toLowerCase())
         );
-        let coverInfo = null;
-        if (coverTextFile) {
-          const text = await fetchFileText(coverTextFile.id);
-          coverInfo = parseCoverInfo(text);
-        }
+
+        // Fetch text files in parallel
+        const [infoText, coverText] = await Promise.all([
+          infoFile ? fetchFileText(infoFile.id) : Promise.resolve(""),
+          coverTextFile ? fetchFileText(coverTextFile.id) : Promise.resolve(""),
+        ]);
+        const info = infoText ? parseAwardInfo(infoText) : null;
+        const coverInfo = coverText ? parseCoverInfo(coverText) : null;
 
         const cover = images.find((img) => /cover/i.test(img.name)) || images[0] || null;
         const galleryImages = images.filter((img) => {
@@ -1128,11 +1276,15 @@ export async function getAwards(opts = {}) {
       })
     );
 
-    return awards.filter((a) => a.cover || a.images.length > 0);
+    const result = awards.filter((a) => a.cover || a.images.length > 0);
+    if (result.length > 0) {
+      cacheSet(cacheKey, result);
+    }
+    return result;
   } else {
     // Flat files directly in "Honors And Awards"
     const images = awardChildren.filter(isAwardImage).map((f) => toImage(f, opts));
-    return await Promise.all(
+    const result = await Promise.all(
       images.map(async (img, idx) => {
         const base = img.name.replace(/\.[^.]+$/, "").trim().toLowerCase();
         const coverTextFile = awardChildren.find(
@@ -1168,11 +1320,21 @@ export async function getAwards(opts = {}) {
         };
       })
     );
+    if (result.length > 0) {
+      cacheSet(cacheKey, result);
+    }
+    return result;
   }
 }
 
 /** Synchronous cached lookup for awards. */
 export function getCachedAwards(opts) {
+  const cacheKey = `drive:${CACHE_VERSION}:full_awards:${JSON.stringify(opts || {})}`;
+  const cached = cacheGet(cacheKey);
+  if (cached && Array.isArray(cached) && cached.length > 0) {
+    return cached;
+  }
+
   const pid = getCachedPageFolderId("awards");
   if (!pid) return null;
   const kids = getCachedChildren(pid);
@@ -1536,9 +1698,11 @@ export async function prefetchAllProjects() {
     console.debug("[drive] prefetching all pages and projects...");
     const start = performance.now();
     
-    // Background promises for page section images (Awards, Contact, About)
+    // Background promises for page data (Awards, Publications, Contact, About)
     const pagePrefetches = [
-      pageSections("awards").catch(() => []),
+      getAwards().catch(() => []),
+      getPublications().catch(() => []),
+      sectionImages("awards", ["Selected Sketches", "Sketches"]).catch(() => []),
       pageSections("about").catch(() => []),
       contactImages().catch(() => []),
     ];
@@ -1693,6 +1857,28 @@ export function getCachedCollageImages() {
     return aNum - bNum;
   });
   return images;
+}
+
+/** Synchronously retrieve cached hero video if available. */
+export function getCachedHeroVideo() {
+  const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
+  if (!homePageFolderId) return null;
+  const kids = getCachedChildren(homePageFolderId);
+  if (!kids) return null;
+  const heroFolder = kids.find((f) => isFolder(f) && /hero/i.test(f.name));
+  if (!heroFolder) return null;
+  const files = getCachedChildren(heroFolder.id);
+  if (!files) return null;
+  const videoFile = files.find(isVideo);
+  if (!videoFile) return null;
+  return {
+    id: videoFile.id,
+    name: videoFile.name,
+    src: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
+    apiSrc: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
+    downloadSrc: `https://drive.usercontent.google.com/download?id=${videoFile.id}&export=download&confirm=t`,
+    previewSrc: `https://drive.google.com/file/d/${videoFile.id}/preview`,
+  };
 }
 
 /**
@@ -1896,7 +2082,7 @@ export async function heroVideo() {
     return {
       id: videoFile.id,
       name: videoFile.name,
-      src: `https://drive.google.com/uc?export=download&id=${videoFile.id}`,
+      src: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
       apiSrc: `https://www.googleapis.com/drive/v3/files/${videoFile.id}?alt=media&key=${DRIVE_CONFIG.apiKey}`,
       downloadSrc: `https://drive.usercontent.google.com/download?id=${videoFile.id}&export=download&confirm=t`,
       previewSrc: `https://drive.google.com/file/d/${videoFile.id}/preview`,
