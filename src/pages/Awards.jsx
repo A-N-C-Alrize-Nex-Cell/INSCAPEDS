@@ -261,10 +261,9 @@ export default function Awards() {
                         {(item.coverInfo.line2 || item.coverInfo.line3) && (
                           <div className="min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:mr-2 md:sm:mr-3 flex-shrink-0">
                             {(() => {
-                              const line2Text = item.coverInfo.line2 || "";
-                              const subText = item.coverInfo.projectSub;
-                              if (!subText && /^inscape[\s:/\-]+(.+)$/i.test(line2Text)) {
-                                const match = line2Text.match(/^inscape[\s:/\-]+(.+)$/i);
+                              const text = item.coverInfo.line2 || "";
+                              const match = text.match(/^inscape[\s:/\-]+(.+)$/i);
+                              if (match) {
                                 return (
                                   <>
                                     <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
@@ -277,18 +276,11 @@ export default function Awards() {
                                 );
                               }
                               return (
-                                <>
-                                  {line2Text && (
-                                    <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
-                                      {line2Text}
-                                    </p>
-                                  )}
-                                  {subText && (
-                                    <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
-                                      {subText}
-                                    </p>
-                                  )}
-                                </>
+                                text && (
+                                  <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                    {text}
+                                  </p>
+                                )
                               );
                             })()}
                             {item.coverInfo.line3 && (
@@ -363,10 +355,9 @@ export default function Awards() {
                           {(item.coverInfo.line2 || item.coverInfo.line3) && (
                             <div className="min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:mr-2 md:sm:mr-3 flex-shrink-0">
                               {(() => {
-                                const line2Text = item.coverInfo.line2 || "";
-                                const subText = item.coverInfo.projectSub;
-                                if (!subText && /^inscape[\s:/\-]+(.+)$/i.test(line2Text)) {
-                                  const match = line2Text.match(/^inscape[\s:/\-]+(.+)$/i);
+                                const text = item.coverInfo.line2 || "";
+                                const match = text.match(/^inscape[\s:/\-]+(.+)$/i);
+                                if (match) {
                                   return (
                                     <>
                                       <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
@@ -379,18 +370,11 @@ export default function Awards() {
                                   );
                                 }
                                 return (
-                                  <>
-                                    {line2Text && (
-                                      <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
-                                        {line2Text}
-                                      </p>
-                                    )}
-                                    {subText && (
-                                      <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
-                                        {subText}
-                                      </p>
-                                    )}
-                                  </>
+                                  text && (
+                                    <p className="font-bold text-ink-900 tracking-wide leading-snug whitespace-nowrap">
+                                      {text}
+                                    </p>
+                                  )
                                 );
                               })()}
                               {item.coverInfo.line3 && (
