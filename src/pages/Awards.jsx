@@ -262,7 +262,7 @@ export default function Awards() {
                           <div className="min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:mr-2 md:sm:mr-3 flex-shrink-0">
                             {(() => {
                               const text = item.coverInfo.line2 || "";
-                              const match = text.match(/^inscape[\s:/\-]+(.+)$/i);
+                              const match = text.match(/^inscape[\s:/-]+(.+)$/i);
                               if (match) {
                                 return (
                                   <>
@@ -356,7 +356,7 @@ export default function Awards() {
                             <div className="min-w-0 text-left text-[10px] sm:text-[11px] font-sans space-y-0.5 sm:mr-2 md:sm:mr-3 flex-shrink-0">
                               {(() => {
                                 const text = item.coverInfo.line2 || "";
-                                const match = text.match(/^inscape[\s:/\-]+(.+)$/i);
+                                const match = text.match(/^inscape[\s:/-]+(.+)$/i);
                                 if (match) {
                                   return (
                                     <>

@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AnimatedRoutes from "./components/AnimatedRoutes";
 import DriveRefresh from "./components/DriveRefresh";
+import ScrollToTop from "./components/ScrollToTop";
 import { prefetchAllProjects } from "./lib/drive";
 
 import { ReactLenis } from '@studio-freight/react-lenis'
@@ -18,6 +19,7 @@ export default function App() {
   return (
     <ReactLenis root>
       <BrowserRouter>
+        <ScrollToTop />
         <div className="min-h-screen flex flex-col bg-sand-100">
           <Navbar />
           <main className="flex-1">

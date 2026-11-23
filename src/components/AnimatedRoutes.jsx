@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { AnimatePresence } from "framer-motion";
+import { useLenis } from "@studio-freight/react-lenis";
 import Home from "../pages/Home";
 import Projects from "../pages/Projects";
 import ProjectDetail from "../pages/ProjectDetail";
@@ -17,6 +18,7 @@ const PageLoader = () => <div className="h-screen bg-sand-100" />;
 
 export default function AnimatedRoutes() {
   const location = useLocation();
+  const lenis = useLenis();
 
   return (
     <AnimatePresence
@@ -24,7 +26,12 @@ export default function AnimatedRoutes() {
       initial={false}
       onExitComplete={() => {
         if (!sessionStorage.getItem("return_to_section")) {
+          if (lenis) {
+            lenis.scrollTo(0, { immediate: true });
+          }
           window.scrollTo(0, 0);
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
         }
       }}
     >

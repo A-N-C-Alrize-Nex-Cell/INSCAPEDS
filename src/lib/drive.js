@@ -526,40 +526,20 @@ export function parseCoverInfo(text) {
     return entry.raw;
   });
 
-  // If both a project and a year are present, ensure line2 is the clean project name and line3 is the Year.
-  // If the project specifies Inscape plus an extra subtitle (e.g. "Inscape new lunch program"),
-  // split so line2 is "Inscape" and projectSub is "new lunch program" (maintained on its own line).
+  // If both a project and a year are present, ensure line2 is the clean project name and line3 is the Year
   let line2 = "";
-  let projectSub = "";
   let line3 = "";
-
-  if (projectVal) {
-    const inscapeSubMatch = projectVal.match(/^inscape[\s:/\-]+(.+)$/i);
-    if (inscapeSubMatch) {
-      line2 = "Inscape";
-      projectSub = inscapeSubMatch[1].trim();
-    } else {
-      line2 = projectVal;
-    }
-  }
-
-  if (yearVal) {
+  if (projectVal && yearVal) {
+    line2 = projectVal;
     line3 = `Year: ${yearVal}`;
   } else {
-    line3 = formattedLines.find((l) => l !== projectVal && l !== line2 && l !== projectSub) || "";
-  }
-
-  if (!line2) {
     line2 = formattedLines[0] || "";
-  }
-  if (!line3) {
     line3 = formattedLines[1] || "";
   }
 
   return {
     title: title.trim(),
     line2: line2.trim(),
-    projectSub: projectSub ? projectSub.trim() : "",
     line3: line3.trim(),
     publicationName: title.trim(),
     projectName: projectVal,
@@ -998,8 +978,8 @@ export async function getPublications(opts = {}) {
           (f) =>
             !isFolder(f) &&
             (f.name.trim().toLowerCase() === `${base}.cover.txt` ||
-             f.name.trim().toLowerCase() === `${base}.txt` ||
-             COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
+              f.name.trim().toLowerCase() === `${base}.txt` ||
+              COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
         );
         let coverInfo = null;
         if (coverTextFile) {
@@ -1131,8 +1111,8 @@ export function getCachedPublications(opts) {
         (f) =>
           !isFolder(f) &&
           (f.name.trim().toLowerCase() === `${base}.cover.txt` ||
-           f.name.trim().toLowerCase() === `${base}.txt` ||
-           COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
+            f.name.trim().toLowerCase() === `${base}.txt` ||
+            COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
       );
       let coverInfo = null;
       if (coverTextFile) {
@@ -1311,8 +1291,8 @@ export async function getAwards(opts = {}) {
           (f) =>
             !isFolder(f) &&
             (f.name.trim().toLowerCase() === `${base}.cover.txt` ||
-             f.name.trim().toLowerCase() === `${base}.txt` ||
-             COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
+              f.name.trim().toLowerCase() === `${base}.txt` ||
+              COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
         );
         let coverInfo = null;
         if (coverTextFile) {
@@ -1445,8 +1425,8 @@ export function getCachedAwards(opts) {
         (f) =>
           !isFolder(f) &&
           (f.name.trim().toLowerCase() === `${base}.cover.txt` ||
-           f.name.trim().toLowerCase() === `${base}.txt` ||
-           COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
+            f.name.trim().toLowerCase() === `${base}.txt` ||
+            COVER_FILE_NAMES.includes(f.name.trim().toLowerCase()))
       );
       let coverInfo = null;
       if (coverTextFile) {
@@ -1713,11 +1693,11 @@ export async function projectDetails(folderId, titleHint = "") {
  */
 export async function prefetchAllProjects() {
   if (!isDriveConfigured()) return;
-  
+
   try {
     console.debug("[drive] prefetching all pages and projects...");
     const start = performance.now();
-    
+
     // Background promises for page data (Hero Video, Awards, Publications, Contact, About)
     const pagePrefetches = [
       heroVideo().catch(() => null),
@@ -1731,16 +1711,16 @@ export async function prefetchAllProjects() {
     // Fetch categories first
     const categories = await projectCategories();
     console.debug("[drive] prefetch: got", categories.length, "categories");
-    
+
     // Fetch all projects concurrently
     const projectsByCategory = await Promise.all(
       categories.map(cat => categoryProjects(cat))
     );
-    
+
     // Fetch details for all projects concurrently
     const allProjs = projectsByCategory.flat();
     console.debug("[drive] prefetch: got", allProjs.length, "projects total");
-    
+
     const results = await Promise.all([
       ...pagePrefetches,
       ...allProjs.slice(0, 12).map(p => projectImages(p.folderId)) // Prefetch first 12 projects
@@ -1757,7 +1737,7 @@ export async function prefetchAllProjects() {
       const img = new Image();
       img.src = url;
     });
-    
+
     const elapsed = performance.now() - start;
     console.debug(`[drive] prefetch complete in ${elapsed.toFixed(0)}ms`);
   } catch (err) {
@@ -1920,10 +1900,10 @@ export function getCachedHeroVideo() {
  */
 export function getCachedProjects(category) {
   if (!DRIVE_CONFIG.cacheStore) return undefined;
-  
+
   const store = backend();
   if (!store) return undefined;
-  
+
   try {
     const cached = store.getItem(`drive:${CACHE_VERSION}:projectCategories`);
     if (cached) {
@@ -1972,23 +1952,23 @@ export async function clientLogos() {
     console.warn("[drive] Drive not configured for clientLogos");
     return [];
   }
-  
+
   try {
     console.log("[drive] Starting to fetch client logos...");
-    
+
     // Use direct folder ID for Home Page
     const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
     if (!homePageFolderId) {
       console.error("[drive] Home Page folder ID not configured in DRIVE_CONFIG");
       return [];
     }
-    
+
     console.log("[drive] Using Home Page folder ID:", homePageFolderId);
-    
+
     // Get Our Client Section subfolder - try multiple possible names
     const possibleNames = ["Our Client Section", "Our Clients", "Clients", "Client Logos"];
     let clientFolder = null;
-    
+
     for (const name of possibleNames) {
       clientFolder = await findChildFolder(homePageFolderId, name);
       if (clientFolder) {
@@ -1996,16 +1976,16 @@ export async function clientLogos() {
         break;
       }
     }
-    
+
     if (!clientFolder) {
       console.error("[drive] Client folder not found with any of the expected names:", possibleNames);
       return [];
     }
-    
+
     // Get all image files in Client folder
     const images = await folderImages(clientFolder.id, { width: DRIVE_CONFIG.thumbWidth });
     console.log("[drive] found", images.length, "client logos in", clientFolder.name, images);
-    
+
     return images;
   } catch (err) {
     console.error("[drive] failed to load client logos:", err);
@@ -2019,27 +1999,27 @@ export async function collageImages() {
     console.warn("[drive] Drive not configured for collageImages");
     return [];
   }
-  
+
   try {
     console.log("[drive] Starting to fetch collage images...");
-    
+
     // Use direct folder ID for Home Page
     const homePageFolderId = DRIVE_CONFIG.directFolders?.homePage;
     if (!homePageFolderId) {
       console.error("[drive] Home Page folder ID not configured in DRIVE_CONFIG");
       return [];
     }
-    
+
     console.log("[drive] Using Home Page folder ID:", homePageFolderId);
-    
+
     // Get Collage Section subfolder - try multiple possible names
     const possibleNames = ["Collage Section", "Collage Section(2nd Sec...", "Collage", "2nd Section"];
     let collageFolder = null;
-    
+
     // First, list all children to see what folders exist
     const homeChildren = await listChildren(homePageFolderId);
     console.log("[drive] Home Page children:", homeChildren.filter(isFolder).map(f => f.name));
-    
+
     // Try exact name matches first
     for (const name of possibleNames) {
       collageFolder = homeChildren.find(
@@ -2050,7 +2030,7 @@ export async function collageImages() {
         break;
       }
     }
-    
+
     // If not found, try partial match - any folder containing "collage"
     if (!collageFolder) {
       collageFolder = homeChildren.find(
@@ -2060,24 +2040,24 @@ export async function collageImages() {
         console.log(`[drive] Found collage folder by partial match: "${collageFolder.name}"`);
       }
     }
-    
+
     if (!collageFolder) {
       console.error("[drive] Collage folder not found. Available folders:", homeChildren.filter(isFolder).map(f => f.name));
       return [];
     }
-    
+
     // Get all image files in Collage folder
     let images = await folderImages(collageFolder.id, { width: DRIVE_CONFIG.thumbWidth });
-    
+
     // Sort images by numeric filename prefix (01.jpg, 03.jpg, 04.jpg, etc.)
     images.sort((a, b) => {
       const aNum = parseInt(a.name.match(/^\d+/)?.[0] || "999");
       const bNum = parseInt(b.name.match(/^\d+/)?.[0] || "999");
       return aNum - bNum;
     });
-    
+
     console.log("[drive] found", images.length, "collage images in", collageFolder.name, "sorted order:", images.map(i => i.name));
-    
+
     return images;
   } catch (err) {
     console.error("[drive] failed to load collage images:", err);
@@ -2148,19 +2128,19 @@ export async function teamMemberImages() {
     console.log("[drive] Drive not configured");
     return [];
   }
-  
+
   try {
     console.log("[drive] Starting to fetch team members...");
-    
+
     // Use direct folder ID for About Us Page (it's a separate shared folder)
     const aboutUsFolderId = DRIVE_CONFIG.directFolders?.aboutUsPage;
     if (!aboutUsFolderId) {
       console.error("[drive] About Us Page folder ID not configured in DRIVE_CONFIG");
       return [];
     }
-    
+
     console.log("[drive] Using About Us Page folder ID:", aboutUsFolderId);
-    
+
     // Get Our People_Section subfolder
     const peopleFolder = await findChildFolder(aboutUsFolderId, "Our People_Section");
     console.log("[drive] Our People_Section folder:", peopleFolder);
@@ -2168,11 +2148,11 @@ export async function teamMemberImages() {
       console.error("[drive] Our People_Section folder not found");
       return [];
     }
-    
+
     // Get all image files in People folder
     const images = await folderImages(peopleFolder.id);
     console.log("[drive] found", images.length, "images in Our People_Section", images);
-    
+
     // Parse filename format and attach metadata
     const teamMembers = images.map((img) => {
       const { name, designation } = parseTeamFileName(img.name);
@@ -2188,7 +2168,7 @@ export async function teamMemberImages() {
         },
       };
     });
-    
+
     console.log("[drive] loaded", teamMembers.length, "team members from People folder");
     return teamMembers;
   } catch (err) {

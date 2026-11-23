@@ -1,7 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
+import { useLenis } from "@studio-freight/react-lenis";
 
 export default function Footer() {
+  const location = useLocation();
+  const lenis = useLenis();
+
+  const handleStartProjectClick = () => {
+    if (location.pathname === "/contact") {
+      if (lenis) {
+        lenis.scrollTo(0);
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else {
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
+      }
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  };
+
   return (
     <footer className="bg-ink-800 text-sand-100 grain-overlay">
       <div className="container-wide pt-20 pb-10">
@@ -102,6 +123,7 @@ export default function Footer() {
           </p>
           <Link
             to="/contact"
+            onClick={handleStartProjectClick}
             className="text-xs text-sand-300 hover:text-sand-50 transition-colors inline-flex items-center gap-1"
           >
             Start a project

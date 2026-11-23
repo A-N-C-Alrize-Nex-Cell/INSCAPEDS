@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Mail, Phone, Clock, Check, Plus } from "lucide-react";
+import { useLenis } from "@studio-freight/react-lenis";
 import {
   fadeUp,
   staggerContainer,
@@ -22,6 +23,27 @@ export default function Contact() {
   });
   const [status, setStatus] = useState("idle");
   const [isMapInteractive, setIsMapInteractive] = useState(false);
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    const rafId = requestAnimationFrame(() => {
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
+      }
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  }, [lenis]);
 
   const { data: driveImages } = useContactImages();
   // Prefer a file whose name says it's meant for this page (e.g. "Contact
