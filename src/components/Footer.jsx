@@ -90,15 +90,23 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <p className="text-xs text-sand-400">
-            © {new Date().getFullYear()} Inscape Architecture Studio. All rights reserved.
+            © {new Date().getFullYear()} Inscape Architecture Studio. All rights reserved. Website developed by{" "}
+            <a
+              href="https://alrizenexcell.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-sand-200 transition-colors"
+            >
+              Alrize Nex Cell
+            </a>
           </p>
-          <a
-            href="mailto:info.inscapeds@gmail.com"
+          <Link
+            to="/contact"
             className="text-xs text-sand-300 hover:text-sand-50 transition-colors inline-flex items-center gap-1"
           >
             Start a project
             <ArrowUpRight size={14} />
-          </a>
+          </Link>
         </div>
       </div>
     </footer>
