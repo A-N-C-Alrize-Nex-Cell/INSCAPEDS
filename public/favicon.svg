@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Premium dark charcoal architectural tile -->
+  <rect width="64" height="64" rx="16" fill="#1C1B18"/>
+  <!-- Bold monogram matching Inscape branding: "i" in white, "n" in signature forest green -->
+  <text x="32" y="45" text-anchor="middle" font-family="'Arial Black', Arial, sans-serif" font-weight="900" font-size="32" letter-spacing="-2">
+    <tspan fill="#FFFFFF">i</tspan><tspan fill="#31682C">n</tspan>
+  </text>
+</svg>

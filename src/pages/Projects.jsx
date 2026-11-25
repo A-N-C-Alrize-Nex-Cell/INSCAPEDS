@@ -101,8 +101,8 @@ export default function Projects() {
               variants={staggerItem}
               onClick={() => handleFilter(cat)}
               className={`relative px-4 py-1.5 text-sm transition-all duration-300 ${activeCategory === cat
-                  ? "text-sand-50"
-                  : "text-ink-600 hover:text-ink-800"
+                ? "text-sand-50"
+                : "text-ink-600 hover:text-ink-800"
                 }`}
             >
               {activeCategory === cat && (

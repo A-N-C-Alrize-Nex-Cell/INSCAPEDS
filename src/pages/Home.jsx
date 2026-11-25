@@ -322,9 +322,8 @@ export default function Home() {
               aria-hidden="true"
               fetchPriority="high"
               loading="eager"
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out z-[1] ${
-                isVideoLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
-              }`}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out z-[1] ${isVideoLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+                }`}
             />
           )}
 
